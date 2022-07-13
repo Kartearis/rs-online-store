@@ -1,0 +1,1 @@
+// Contains logic to display card components in catalog
