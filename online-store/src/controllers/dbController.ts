@@ -6,7 +6,7 @@
 import * as idb from 'idb';
 import { IDBPDatabase, IDBPObjectStore } from "idb";
 
-function assertDefined<Type>(value: Type): NonNullable<Type> {
+export function assertDefined<Type>(value: Type): NonNullable<Type> {
   if (value === undefined || value === null)
     throw new Error("Value is undefined!");
   return value as NonNullable<Type>;
