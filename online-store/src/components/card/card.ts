@@ -12,14 +12,16 @@ template.innerHTML = `
     <img class="product-card__image">
     <div class="product-card__header">
       <h3 class="product-card__name"></h3>
-      <div class="product-card__price"></div>
     </div>
     <h5 class="product-card__maker"></h5>
     <div class="product-card__info"></div>
     <div class="product-card__footer">
       <div class="product-card__stock"> 0 </div>
-      <div class="product-card__counter"> 0 </div>
-      <button class="product-card__button" data-target="cart">To cart</button>
+      <div class="product-card__price"></div>
+      <button class="product-card__button" data-target="cart">
+        To cart
+      </button>
+      <div class="product-card__counter hidden"> To cart </div> <!-- Change between text and amount if added to cart or not -->
     </div>
 `;
 
@@ -80,6 +82,7 @@ class Card extends HTMLElement {
     assertDefined(this.#infoElement).innerHTML = `
       ${data.date}
     `;
+    assertDefined(this.#stockCounterElement).innerText = "In stock: 0";
     assertDefined(this.#counterElement).innerText = this.#cartCount.toString();
   }
 

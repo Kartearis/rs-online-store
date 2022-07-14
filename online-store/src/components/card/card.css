@@ -71,3 +71,8 @@
 .product-card__stock {
     margin-right: auto;
 }
+
+/* How to correctly make selectors like this with BEM? */
+.hidden {
+    display: none;
+}
