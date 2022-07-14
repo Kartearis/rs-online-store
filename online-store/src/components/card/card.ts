@@ -9,14 +9,18 @@ import { assertDefined } from "../../controllers/dbController";
 
 const template: HTMLTemplateElement = document.createElement("template");
 template.innerHTML = `
-  <div class="product-card">
     <img class="product-card__image">
+    <div class="product-card__header">
+      <h3 class="product-card__name"></h3>
+      <div class="product-card__price"></div>
+    </div>
+    <h5 class="product-card__maker"></h5>
     <div class="product-card__info"></div>
     <div class="product-card__footer">
+      <div class="product-card__stock"> 0 </div>
       <div class="product-card__counter"> 0 </div>
       <button class="product-card__button" data-target="cart">To cart</button>
     </div>
-  </div>
 `;
 
 class Card extends HTMLElement {
@@ -27,6 +31,10 @@ class Card extends HTMLElement {
   #imageElement: HTMLImageElement | null = null
   #infoElement: HTMLElement | null = null
   #counterElement: HTMLElement | null = null
+  #stockCounterElement: HTMLElement | null = null
+  #nameElement: HTMLHeadingElement | null = null
+  #priceElement: HTMLElement | null = null
+  #makerElement: HTMLHeadingElement | null = null
   #cartButtonElement: HTMLButtonElement | null = null
 
   // tmp
@@ -43,11 +51,16 @@ class Card extends HTMLElement {
     // this.attachShadow({mode: "open"});
     // if (this.shadowRoot === null)
     //   throw new Error("Could not create shadow root for card!");
+    this.classList.add('product-card');
     this._shadowRoot = document.createDocumentFragment();
     this._shadowRoot.append(template.content.cloneNode(true));
     this.#imageElement = this._shadowRoot.querySelector(".product-card__footer");
     this.#infoElement = this._shadowRoot.querySelector(".product-card__info");
     this.#counterElement = this._shadowRoot.querySelector(".product-card__counter");
+    this.#stockCounterElement = this._shadowRoot.querySelector(".product-card__stock");
+    this.#nameElement = this._shadowRoot.querySelector(".product-card__name");
+    this.#priceElement = this._shadowRoot.querySelector(".product-card__price");
+    this.#makerElement = this._shadowRoot.querySelector(".product-card__maker");
     this.#cartButtonElement = this._shadowRoot.querySelector(".product-card__button [data-target='cart']");
 
     this.append(this._shadowRoot);
@@ -62,12 +75,12 @@ class Card extends HTMLElement {
         price: 0,
         date: new Date()
       };
+    assertDefined(this.#nameElement).innerText = data.name;
+    assertDefined(this.#priceElement).innerText = data.price.toString();
     assertDefined(this.#infoElement).innerHTML = `
-      ${data.name} <br>
-      ${data.price} <br>
       ${data.date}
     `;
-    assertDefined(this.#counterElement).innerText = "" + this.#cartCount;
+    assertDefined(this.#counterElement).innerText = this.#cartCount.toString();
   }
 
   connectedCallback(): void {

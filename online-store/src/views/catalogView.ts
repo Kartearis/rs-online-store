@@ -3,6 +3,8 @@ import { Product } from "../controllers/dbController";
 import Card from "../components/card/card";
 import { assertDefined } from "../controllers/dbController";
 
+import './catalog-view.css';
+
 export default class CatalogView {
 
   // TODO: Change to real version
@@ -14,7 +16,7 @@ export default class CatalogView {
       const card: Card = new Card(value);
       fragment.append(card);
     });
-    assertDefined(document.querySelector('main')).innerHTML = "";
-    assertDefined(document.querySelector('main')).append(fragment);
+    assertDefined(document.querySelector('main .card-container')).innerHTML = "";
+    assertDefined(document.querySelector('main .card-container')).append(fragment);
   }
 }
