@@ -1,8 +1,11 @@
 // Card web-component to use in catalog
 // Supports addToCart and removeFromCart events (increasing and decreasing amount of product in cart)
+import './card.css';
 
 import { Product } from "../../controllers/dbController";
 import { assertDefined } from "../../controllers/dbController";
+
+
 
 const template: HTMLTemplateElement = document.createElement("template");
 template.innerHTML = `
@@ -26,21 +29,28 @@ class Card extends HTMLElement {
   #counterElement: HTMLElement | null = null
   #cartButtonElement: HTMLButtonElement | null = null
 
+  // tmp
+  _shadowRoot: DocumentFragment | null = null
+
 
   constructor(data: Product | null = null) {
     super();
 
     this.#innerData = data;
 
-    this.attachShadow({mode: "open"});
-    if (this.shadowRoot === null)
-      throw new Error("Could not create shadow root for card!");
-    this.shadowRoot.append(template.content.cloneNode(true));
-    this.#imageElement = this.shadowRoot.querySelector(".product-card__footer");
-    this.#infoElement = this.shadowRoot.querySelector(".product-card__info");
-    this.#counterElement = this.shadowRoot.querySelector(".product-card__counter");
-    this.#cartButtonElement = this.shadowRoot.querySelector(".product-card__button [data-target='cart']");
+    // Maybe use shadow dom when there is access to the internet (when it is clear
+    // what to do with styles). For now just create document fragment and use it instead
+    // this.attachShadow({mode: "open"});
+    // if (this.shadowRoot === null)
+    //   throw new Error("Could not create shadow root for card!");
+    this._shadowRoot = document.createDocumentFragment();
+    this._shadowRoot.append(template.content.cloneNode(true));
+    this.#imageElement = this._shadowRoot.querySelector(".product-card__footer");
+    this.#infoElement = this._shadowRoot.querySelector(".product-card__info");
+    this.#counterElement = this._shadowRoot.querySelector(".product-card__counter");
+    this.#cartButtonElement = this._shadowRoot.querySelector(".product-card__button [data-target='cart']");
 
+    this.append(this._shadowRoot);
     this.update();
   }
 

@@ -1,0 +1,27 @@
+.product-card {
+    width: 300px;
+    border: 1px solid #30c5ff;
+    border-radius: 5px;
+    background-color: white;
+    color: #17181c;
+    transition: transform 0.3s;
+}
+
+.product-card:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+.product-card__button {
+    width: 50px;
+    border: 1px solid #30c5ff;
+    border-radius: 5px;
+    background-color: lightgray;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.product-card__button:hover {
+    cursor: pointer;
+    background-color: #30c5ff;
+    color: white;
+}
