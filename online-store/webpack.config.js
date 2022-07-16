@@ -21,10 +21,13 @@ const baseConfig = {
                 test: /\.html?$/,
                 use: 'html-loader',
             },
-            // {
-            //     test: /\.json$/,
-            //     loader: 'json-loader'
-            // }
+            {
+                test: /\.(jpg|png|webp)$/,
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                },
+            }
         ],
     },
     resolve: {
@@ -32,7 +35,7 @@ const baseConfig = {
     },
     output: {
         filename: 'index.js',
-        path: path.resolve(__dirname, '../news-api-dist'),
+        path: path.resolve(__dirname, '../online-store-dist'),
         hashFunction: 'xxhash64',
     },
     plugins: [

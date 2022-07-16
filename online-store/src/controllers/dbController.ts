@@ -4,8 +4,8 @@
 // Storage engine - indexedDB
 
 import * as idb from 'idb';
-import { IDBPDatabase, IDBPObjectStore } from "idb";
-import * as products from './products.json';
+import { IDBPDatabase } from "idb";
+import products from './products';
 
 export function assertDefined<Type>(value: Type): NonNullable<Type> {
   if (value === undefined || value === null)
@@ -16,13 +16,19 @@ export function assertDefined<Type>(value: Type): NonNullable<Type> {
 interface ProductJson{
   name: string,
   price: number,
+  vendor: string,
+  memory: string,
+  color: string,
+  stock: number,
+  image: string,
   date: string | Date
 }
 
 export interface Product extends ProductJson{
   name: string,
   price: number,
-  date: Date
+  date: Date,
+  // [x: string]: unknown // Use indexer to set fields with migrations
 }
 
 
@@ -55,16 +61,12 @@ interface IndexMigration extends BaseMigration {
   indexName: string
 }
 
+type Transaction<Mode extends "versionchange" | "readonly" | "readwrite"> = idb.IDBPTransaction<ProductDB, ["products"], Mode>
+
 // type migrationArray = BaseMigration[][];
 type migrationArray = (BaseMigration | IndexMigration | FieldAddedMigration)[][];
 
 type productStore = idb.IDBPObjectStore<ProductDB, ArrayLike<"products">, "products", "versionchange">;
-
-function transformJson(data: ProductJson[]): Product[] {
-  const dataAsArray = Array.from(data);
-  dataAsArray.forEach(value => value.date = new Date(value.date));
-  return dataAsArray as Product[];
-}
 
 export default class DbController {
   // Actually set in constructor
@@ -80,13 +82,18 @@ export default class DbController {
     ],
     [
       {type: MigrationType.fieldAdded, field: 'vendor', defaultValue: 'default'},
+      {type: MigrationType.fieldAdded, field: 'memory', defaultValue: 'default'},
+      {type: MigrationType.fieldAdded, field: 'color', defaultValue: 'default'},
+      {type: MigrationType.fieldAdded, field: 'stock', defaultValue: 0},
+    ],
+    [
+      {type: MigrationType.fieldAdded, field: 'image', defaultValue: '../assets/images/placeholder.png'},
     ]
   ]
-  defaultProducts: Product[] = transformJson(products)
+  defaultProducts: Product[] = products
 
   constructor() {
     this.version = this.migrationHistory.length;
-    console.log(this.defaultProducts);
   }
 
   async init(): Promise<void> {
@@ -98,7 +105,7 @@ export default class DbController {
     if (!this.connection) throw new Error("Db is not initialised before product sync");
     await this.connection.clear('products');
     // Should I actually type-hint cases like this?
-    const tx = this.connection.transaction('products', 'readwrite');
+    const tx: Transaction<"readwrite"> = this.connection.transaction('products', 'readwrite');
     let promises: Promise<void | string>[] = this.defaultProducts.map(prod => tx.store.add(prod));
     promises.push(tx.done);
     await Promise.all(promises);
@@ -111,9 +118,14 @@ export default class DbController {
       case MigrationType.fieldAdded:
         const fieldMigration = migration as FieldAddedMigration;
         // Logic for updating existing objects: adding field with default value
+        // Problem is it works bad with TS (because I cannot (shouldn't) use incomplete types)
+        // So for TS field migrations should be batched from all accumulated migrations and applied at once
+        // For current project it is not necessary though, so migrations just do nothing. They would be required in
+        // case of user-added products though.
         break;
       case MigrationType.fieldRemoved:
         // Logic for removing field from existing objects and maybe changing keys (if possible)
+        // Same problem here
         break;
       case MigrationType.indexAdded:
         const indexMigration = migration as IndexMigration;
@@ -135,7 +147,7 @@ export default class DbController {
           if (!db.objectStoreNames.contains('products'))
             productStore = db.createObjectStore('products', {keyPath: self.storageKey});
           else {
-            const tx = db.transaction(['products'], 'versionchange');
+            const tx: Transaction<"versionchange"> = db.transaction(['products'], 'versionchange');
             productStore = tx.store;
           }
           const requiredMigrations: migrationArray = self.migrationHistory.slice(oldVersion, newVersion - 1);

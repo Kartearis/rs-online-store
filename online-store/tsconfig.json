@@ -4,11 +4,12 @@
     "sourceMap": true,
     "noImplicitAny": true,
     "strict": true,
-    "module": "es6",
+    "module": "esnext",
     "target": "es6",
     "jsx": "react",
     "allowJs": true,
     "moduleResolution": "node",
     "resolveJsonModule": true
-  }
+  },
+  "include": ["src", "custom-types.d.ts"]
 }

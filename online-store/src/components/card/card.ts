@@ -56,7 +56,7 @@ class Card extends HTMLElement {
     this.classList.add('product-card');
     this._shadowRoot = document.createDocumentFragment();
     this._shadowRoot.append(template.content.cloneNode(true));
-    this.#imageElement = this._shadowRoot.querySelector(".product-card__footer");
+    this.#imageElement = this._shadowRoot.querySelector(".product-card__image");
     this.#infoElement = this._shadowRoot.querySelector(".product-card__info");
     this.#counterElement = this._shadowRoot.querySelector(".product-card__counter");
     this.#stockCounterElement = this._shadowRoot.querySelector(".product-card__stock");
@@ -72,18 +72,21 @@ class Card extends HTMLElement {
   update(): void {
     let data: Product | null = this.data;
     if (data === null)
-      data = {
-        name: 'Default',
-        price: 0,
-        date: new Date()
-      };
-    assertDefined(this.#nameElement).innerText = data.name;
-    assertDefined(this.#priceElement).innerText = data.price.toString();
-    assertDefined(this.#infoElement).innerHTML = `
-      ${data.date}
-    `;
-    assertDefined(this.#stockCounterElement).innerText = "In stock: 0";
-    assertDefined(this.#counterElement).innerText = this.#cartCount.toString();
+      assertDefined(this.#nameElement).innerText = "No data";
+    else {
+      console.log(data.image);
+      assertDefined(this.#imageElement).src = data.image;
+      assertDefined(this.#nameElement).innerText = data.name;
+      assertDefined(this.#priceElement).innerText = data.price.toString();
+      assertDefined(this.#makerElement).innerText = data.vendor;
+      assertDefined(this.#infoElement).innerHTML = `
+        Memory: ${data.memory}<br>
+        Color: ${data.color}<br>
+        Last restock: ${data.date.toLocaleDateString()}
+      `;
+      assertDefined(this.#stockCounterElement).innerText = `In stock: ${data.stock}`;
+      assertDefined(this.#counterElement).innerText = this.#cartCount.toString();
+    }
   }
 
   connectedCallback(): void {
