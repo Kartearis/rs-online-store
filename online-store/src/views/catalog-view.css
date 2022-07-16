@@ -1,3 +1,4 @@
+/* this grid only makes sense 1230px+. On lower resolutions less columns needed */
 .card-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;

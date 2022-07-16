@@ -154,3 +154,10 @@ footer .copyright a:hover {
 footer .copyright:before {
     content: '©';
 }
+
+.main-container {
+    display: grid;
+    grid-template-columns: 25% 1fr;
+    grid-template-rows: 1fr;
+    gap: 10px;
+}

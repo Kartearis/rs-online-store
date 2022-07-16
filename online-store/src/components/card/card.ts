@@ -74,7 +74,6 @@ class Card extends HTMLElement {
     if (data === null)
       assertDefined(this.#nameElement).innerText = "No data";
     else {
-      console.log(data.image);
       assertDefined(this.#imageElement).src = data.image;
       assertDefined(this.#nameElement).innerText = data.name;
       assertDefined(this.#priceElement).innerText = data.price.toString();
