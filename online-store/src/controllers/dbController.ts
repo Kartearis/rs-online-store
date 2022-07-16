@@ -5,6 +5,7 @@
 
 import * as idb from 'idb';
 import { IDBPDatabase, IDBPObjectStore } from "idb";
+import * as products from './products.json';
 
 export function assertDefined<Type>(value: Type): NonNullable<Type> {
   if (value === undefined || value === null)
@@ -12,11 +13,19 @@ export function assertDefined<Type>(value: Type): NonNullable<Type> {
   return value as NonNullable<Type>;
 }
 
-export interface Product {
+interface ProductJson{
+  name: string,
+  price: number,
+  date: string | Date
+}
+
+export interface Product extends ProductJson{
   name: string,
   price: number,
   date: Date
 }
+
+
 
 interface ProductDB extends idb.DBSchema {
   products: {
@@ -51,7 +60,14 @@ type migrationArray = (BaseMigration | IndexMigration | FieldAddedMigration)[][]
 
 type productStore = idb.IDBPObjectStore<ProductDB, ArrayLike<"products">, "products", "versionchange">;
 
+function transformJson(data: ProductJson[]): Product[] {
+  const dataAsArray = Array.from(data);
+  dataAsArray.forEach(value => value.date = new Date(value.date));
+  return dataAsArray as Product[];
+}
+
 export default class DbController {
+  // Actually set in constructor
   version: number = 1
   storageKey: string = 'name'
   connection: idb.IDBPDatabase<ProductDB> | undefined = undefined
@@ -61,14 +77,17 @@ export default class DbController {
       {type: MigrationType.fieldAdded, field: 'price', defaultValue: 0},
       {type: MigrationType.fieldAdded, field: 'date', defaultValue: new Date()},
       {type: MigrationType.indexAdded, field: 'price', indexName: 'price_idx'}
+    ],
+    [
+      {type: MigrationType.fieldAdded, field: 'vendor', defaultValue: 'default'},
     ]
   ]
-  defaultProducts: Product[] = [
-    {name: 'Rtx 2060', price: 120000, date: new Date('14-07-2022')},
-    {name: 'Rtx 2070', price: 190000, date: new Date('10-02-2022')},
-    {name: 'Rtx 2080', price: 300000, date: new Date('13-07-2022')},
-    {name: 'Radeon 7890', price: 45999, date: new Date('01-01-2022')},
-  ]
+  defaultProducts: Product[] = transformJson(products)
+
+  constructor() {
+    this.version = this.migrationHistory.length;
+    console.log(this.defaultProducts);
+  }
 
   async init(): Promise<void> {
     await this.openDb('online-store-1dadw123ds');

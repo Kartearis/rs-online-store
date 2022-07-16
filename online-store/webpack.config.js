@@ -21,6 +21,10 @@ const baseConfig = {
                 test: /\.html?$/,
                 use: 'html-loader',
             },
+            // {
+            //     test: /\.json$/,
+            //     loader: 'json-loader'
+            // }
         ],
     },
     resolve: {
