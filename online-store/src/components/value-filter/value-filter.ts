@@ -5,8 +5,8 @@ import { assertDefined } from "../../controllers/dbController";
 const template: HTMLTemplateElement = document.createElement("template");
 template.innerHTML = `
     <label class="value-filter__label"></label>
-    <div class="value-filter__option-container"></div>
     <button class="value-filter__reset">x</button>
+    <div class="value-filter__option-container"></div>
 `;
 
 type Option = {name: string, value: string};
@@ -15,6 +15,8 @@ export interface FilterData {
   label: string,
   options: Option[]
 }
+
+let nextId: number = 0;
 
 class ValueFilter extends HTMLElement {
   #innerData: FilterData | null = null
@@ -42,14 +44,23 @@ class ValueFilter extends HTMLElement {
   }
 
   createOption(option: Option): void {
-    const optionElement = document.createElement("input");
-    optionElement.innerText = option.name;
-    optionElement.type = 'checkbox';
-    optionElement.name = assertDefined(this.#innerData).label;
-    optionElement.dataset['value'] = option.value;
-    optionElement.classList.add('value-filter__option');
-    optionElement.addEventListener('click', () => this.optionSelected(optionElement));
-    this.#optionContainer?.append(optionElement);
+    const optionBlock: HTMLElement = document.createElement("div");
+    const optionCheckbox: HTMLInputElement = document.createElement("input");
+    const optionId: string = "value-filter-option--" + nextId;
+    nextId += 1;
+    optionCheckbox.type = 'checkbox';
+    optionCheckbox.id = optionId;
+    optionCheckbox.name = assertDefined(this.#innerData).label;
+    optionCheckbox.dataset['value'] = option.value ?? option.name;
+    optionCheckbox.classList.add('value-filter__option');
+    const optionLabel = document.createElement("label");
+    optionLabel.innerText = option.name;
+    optionLabel.setAttribute("for", optionId);
+    optionLabel.classList.add('value-filter__option-label')
+    optionBlock.append(optionCheckbox);
+    optionBlock.append(optionLabel);
+    optionCheckbox.addEventListener('change', () => this.optionSelected(optionCheckbox));
+    this.#optionContainer?.append(optionBlock);
   }
 
   update(): void {
@@ -62,14 +73,21 @@ class ValueFilter extends HTMLElement {
   }
 
   reset(): void {
-
+    assertDefined(this.#optionContainer).querySelectorAll(".value-filter__option:checked")
+      .forEach(element => (element as HTMLInputElement).checked = false);
+    this.emitEvent([]);
   }
 
   optionSelected(optionElement: HTMLInputElement): void {
-    optionElement.setAttribute('checked', "checked");
-    const options: NodeListOf<Element> = assertDefined(this.#optionContainer).querySelectorAll(".value-filter__option[checked]");
+    // optionElement.checked = !optionElement.checked;
+    const options: NodeListOf<Element> = assertDefined(this.#optionContainer).querySelectorAll(".value-filter__option:checked");
     const selected: (string | undefined)[] = Array.from(options).map(element => (element as HTMLInputElement).dataset['value']);
-    const e: Event = new CustomEvent("FilterSelected", {cancelable: true, detail: selected});
+    this.emitEvent(selected);
+  }
+
+  emitEvent(selectedValues: (string | undefined)[]): void {
+    console.log(selectedValues);
+    const e: Event = new CustomEvent("FilterSelected", {cancelable: true, detail: selectedValues});
     this.dispatchEvent(e);
   }
 }
