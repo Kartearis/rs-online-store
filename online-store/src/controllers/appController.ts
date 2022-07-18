@@ -2,7 +2,7 @@
 import DbController from "./dbController";
 import { Product } from "./dbController";
 import CatalogView from "../views/catalogView";
-import Sidebar, { FilterConfig, FilterState } from "../components/sidebar/sidebar";
+import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from "../components/sidebar/sidebar";
 import { FilterData } from "../components/value-filter/value-filter";
 
 export default class AppController {
@@ -18,9 +18,33 @@ export default class AppController {
           .map(field => this.buildValueFilterFromField(field))),
       rangeFilters: []
     };
-    const sidebar: Sidebar = this.catalogView.createSidebar(filterConfig);
-    sidebar.addEventListener('filterUpdate', (e) => this.showProducts((e as CustomEvent<FilterState>).detail));
-    console.log(sidebar);
+    const sortConfig: SortConfig = [
+      {
+        field: "name",
+        label: "Name"
+      },
+      {
+        field: "price",
+        label: "Price"
+      },
+      {
+        field: "memory",
+        label: "Memory size"
+      },
+      {
+        field: "stock",
+        label: "Left in stock"
+      },
+      {
+        field: "date",
+        label: "Last restock"
+      }
+    ]
+    const sidebar: Sidebar = this.catalogView.createSidebar(filterConfig, sortConfig);
+    sidebar.addEventListener('filterUpdate',
+      (e) => this.showProducts((e as CustomEvent<FilterState>).detail, sidebar.currentSortState));
+    sidebar.addEventListener('sortUpdate',
+      (e) => this.showProducts(sidebar.currentFilterState, (e as CustomEvent<SortState>).detail))
   }
 
   async buildValueFilterFromField(field: string): Promise<FilterData> {
@@ -33,11 +57,12 @@ export default class AppController {
     }
   };
 
-  async showProducts(filters: FilterState | null): Promise<void> {
+  async showProducts(filters: FilterState | null, sort: SortState | null): Promise<void> {
     console.log(filters);
-    const data: Product[] | undefined = filters
-      ? await this.dbController.getProductsByFilters(filters)
+    const data: Product[] | undefined = filters || sort
+      ? await this.dbController.getProductsByFilters(filters, sort)
       : await this.dbController.getProducts();
+    console.log(sort);
     this.catalogView.showProducts(data);
   }
 }

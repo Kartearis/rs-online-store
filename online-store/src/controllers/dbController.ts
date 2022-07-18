@@ -6,7 +6,7 @@
 import * as idb from 'idb';
 import { IDBPDatabase } from "idb";
 import products from './products';
-import { FilterState } from "../components/sidebar/sidebar";
+import { FilterState, SortState } from "../components/sidebar/sidebar";
 import {FilterState as ValueFilterState} from "../components/value-filter/value-filter";
 
 export function assertDefined<Type>(value: Type): NonNullable<Type> {
@@ -77,10 +77,14 @@ interface IndexMigration extends BaseMigration {
 
 type Transaction<Mode extends "versionchange" | "readonly" | "readwrite"> = idb.IDBPTransaction<ProductDB, ["products"], Mode>
 
-// type migrationArray = BaseMigration[][];
 type migrationArray = (BaseMigration | IndexMigration | FieldAddedMigration)[][];
 
 type productStore = idb.IDBPObjectStore<ProductDB, ArrayLike<"products">, "products", "versionchange">;
+
+function checkIfValidIndexName(index: string, migrations: migrationArray): index is keyof ProductDB['products']['indexes'] {
+  return migrations.flat(2).filter(migration => migration.type === MigrationType.indexAdded
+    && (migration as IndexMigration).indexName === index).length > 0;
+}
 
 export default class DbController {
   // Actually set in constructor
@@ -198,20 +202,29 @@ export default class DbController {
     return Array.from(new Set(objectsByField.map(product => product[field] as Type)));
   }
 
-  async getProductsByFilters(filters: FilterState): Promise<Product[]> {
+  async getProductsByFilters(filters: FilterState | null, sort: SortState | null): Promise<Product[]> {
     // For large dbs using several indexes and merging resulting arrays may be faster?
     // But I will go with simpler solution: getAll objects by sorting index then filter
     // them with Array.filter
     // For now assume sorting by name (later just use suitable index)
     const tx: Transaction<'readonly'> = assertDefined(this.connection).transaction('products', 'readonly');
-    let allProducts: Product[] = await tx.objectStore('products').getAll();
-    // For each filter leave only suitable values
-    for (let state of Object.entries(filters.valueFilterState)) {
-      if (state[1].length === 0) continue;
-      allProducts = allProducts.filter(product => state[1].includes(product[state[0]].toString()));
+    let allProducts: Product[] = [];
+    let direction = "up";
+    if (sort) {
+      direction = sort.direction;
+      const indexName = sort.field + "_idx";
+      if (sort.field !== 'name' && checkIfValidIndexName(indexName, this.migrationHistory))
+        allProducts = await tx.objectStore('products').index(indexName).getAll();
+      else allProducts = await tx.objectStore('products').getAll();
     }
+    else allProducts = await tx.objectStore('products').getAll();
+    if (filters)
+      for (let state of Object.entries(filters.valueFilterState)) {
+        if (state[1].length === 0) continue;
+        allProducts = allProducts.filter(product => state[1].includes(product[state[0]].toString()));
+      }
     // Here filter with range filters
     ////////
-    return allProducts;
+    return direction === 'up' ? allProducts : allProducts.reverse();
   }
 }

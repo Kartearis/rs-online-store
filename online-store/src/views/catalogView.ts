@@ -1,7 +1,7 @@
 // Contains logic to display card components in catalog
 import { Product } from "../controllers/dbController";
 import Card from "../components/card/card";
-import Sidebar, { FilterConfig } from "../components/sidebar/sidebar";
+import Sidebar, { FilterConfig, SortConfig } from "../components/sidebar/sidebar";
 import { assertDefined } from "../controllers/dbController";
 
 import './catalog-view.css';
@@ -9,8 +9,8 @@ import './catalog-view.css';
 export default class CatalogView {
   sidebar: Sidebar | null = null
 
-  createSidebar(sidebarConfig: FilterConfig): Sidebar {
-    this.sidebar = new Sidebar(sidebarConfig);
+  createSidebar(sidebarConfig: FilterConfig, sortConfig: SortConfig): Sidebar {
+    this.sidebar = new Sidebar(sidebarConfig, sortConfig);
     assertDefined(document.querySelector('main .sidebar-container')).append(this.sidebar);
     return this.sidebar;
   }
