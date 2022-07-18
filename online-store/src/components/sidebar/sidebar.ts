@@ -5,7 +5,6 @@ import ValueFilter, {
   FilterData as ValueFilterData,
   StateData as ValueStateData,
   FilterState as ValueFilterState,
-  StateData
 } from "../value-filter/value-filter";
 import { assertDefined, Product } from "../../controllers/dbController";
 
@@ -29,11 +28,11 @@ export interface FilterState {
 
 const template: HTMLTemplateElement = document.createElement("template");
 template.innerHTML = `
-  <h3>Filters</h3>
+  <h3 class="sidebar__header">Filters</h3>
   <div class="sidebar__value-filter-container"></div>
   <div class="sidebar__range-filter-container"></div>
   <button class="sidebar__reset">Reset</button>
-  <h3>Sort</h3>
+  <h3 class="sidebar__header">Sort</h3>
   <select class="sidebar__sort">
   </select>
 `;
