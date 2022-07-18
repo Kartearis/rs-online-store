@@ -6,6 +6,11 @@ import { assertDefined } from "../../controllers/dbController";
 
 type ValueFilterState = Record<string, Record<string, boolean>>;
 
+export interface FilterConfig {
+  valueFilters: FilterData[],
+  rangeFilters: unknown[] // tmp
+}
+
 const template: HTMLTemplateElement = document.createElement("template");
 template.innerHTML = `
   <h3>Filters</h3>
@@ -26,18 +31,9 @@ class Sidebar extends HTMLElement {
   #resetButton: HTMLButtonElement | null = null
   #valueFilterContainer: HTMLElement | null = null
 
-  constructor() {
+  constructor(filterConfig: FilterConfig) {
     super();
-    this.#valueFilters = [
-      {
-        label: 'Vendor',
-        options: [
-          {name: 'Asus', value: 'Asus'},
-          {name: 'Gigabyte', value: 'Gigabyte'},
-          {name: 'Palit', value: 'Palit'}
-        ]
-      }
-    ];
+    this.#valueFilters = filterConfig.valueFilters;
     this.#filterState = {
 
     };

@@ -2,6 +2,7 @@
 import DbController from "./dbController";
 import { Product } from "./dbController";
 import CatalogView from "../views/catalogView";
+import { FilterConfig } from "../components/sidebar/sidebar";
 
 export default class AppController {
 
@@ -14,6 +15,17 @@ export default class AppController {
 
   async showProducts() {
     const data: Product[] | undefined = await this.dbController.getProducts();
-    this.catalogView.showProducts(data);
+    const filterConfig: FilterConfig = {
+      valueFilters: [
+        {
+          label: 'Vendor',
+          options: (await this.dbController.getUniqueFieldValues<string>('vendor')).map(vendor => {return {
+            name: vendor, value: vendor
+          };})
+        }
+      ],
+      rangeFilters: []
+    }
+    this.catalogView.showProducts(data, filterConfig);
   }
 }
