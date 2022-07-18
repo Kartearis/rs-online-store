@@ -16,6 +16,9 @@ export interface FilterData {
   options: Option[]
 }
 
+export type FilterState = (string | undefined)[]
+export type StateData = {label: Lowercase<string>, state: FilterState}
+
 let nextId: number = 0;
 
 class ValueFilter extends HTMLElement {
@@ -79,16 +82,46 @@ class ValueFilter extends HTMLElement {
   }
 
   optionSelected(optionElement: HTMLInputElement): void {
-    // optionElement.checked = !optionElement.checked;
     const options: NodeListOf<Element> = assertDefined(this.#optionContainer).querySelectorAll(".value-filter__option:checked");
-    const selected: (string | undefined)[] = Array.from(options).map(element => (element as HTMLInputElement).dataset['value']);
+    const selected: FilterState = Array.from(options).map(element => (element as HTMLInputElement).dataset['value']);
     this.emitEvent(selected);
   }
 
   emitEvent(selectedValues: (string | undefined)[]): void {
-    console.log(selectedValues);
-    const e: Event = new CustomEvent("FilterSelected", {cancelable: true, detail: selectedValues});
+    const e: CustomEvent<StateData> = new CustomEvent("FilterSelected",
+      {
+        cancelable: true,
+        detail: {
+          label: assertDefined(this.#innerData).label.toLowerCase(),
+          state: selectedValues
+        }
+      });
     this.dispatchEvent(e);
+  }
+
+  getDefaultStateData(): StateData {
+    return {
+      label: assertDefined(this.#innerData).label.toLowerCase(),
+      state: []
+    };
+  }
+
+  getCurrentStateData(): StateData {
+    const options: NodeListOf<Element> = assertDefined(this.#optionContainer).querySelectorAll(".value-filter__option:checked");
+    const selected: FilterState = Array.from(options).map(element => (element as HTMLInputElement).dataset['value']);
+    return {
+      label: assertDefined(this.#innerData).label.toLowerCase(),
+      state: selected
+    };
+  }
+
+  get label(): string | undefined {
+    return this.#innerData?.label;
+  }
+
+  set label(data: string | undefined) {
+    if (data)
+      assertDefined(this.#innerData).label = data;
   }
 }
 

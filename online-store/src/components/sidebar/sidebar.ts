@@ -1,14 +1,18 @@
 // Sidebar web-component
 // Must support filter, order and reset events
 import './sidebar.css';
-import ValueFilter, { FilterData } from "../value-filter/value-filter";
+import ValueFilter, { FilterData as ValueFilterData, StateData as ValueStateData, FilterState as ValueFilterState } from "../value-filter/value-filter";
 import { assertDefined } from "../../controllers/dbController";
 
-type ValueFilterState = Record<string, Record<string, boolean>>;
 
 export interface FilterConfig {
-  valueFilters: FilterData[],
+  valueFilters: ValueFilterData[],
   rangeFilters: unknown[] // tmp
+}
+
+export interface FilterState {
+  valueFilterState: Record<string, ValueFilterState>,
+  rangeFilterState: unknown
 }
 
 const template: HTMLTemplateElement = document.createElement("template");
@@ -23,9 +27,10 @@ template.innerHTML = `
 `;
 
 class Sidebar extends HTMLElement {
-  #valueFilters: FilterData[] | null = null
+  #valueFilters: ValueFilterData[] | null = null
+  #valueFilterRef: ValueFilter[] = []
 
-  #filterState: ValueFilterState
+  #filterState: FilterState
 
   _shadowRoot: DocumentFragment | null = null
   #resetButton: HTMLButtonElement | null = null
@@ -35,7 +40,8 @@ class Sidebar extends HTMLElement {
     super();
     this.#valueFilters = filterConfig.valueFilters;
     this.#filterState = {
-
+      valueFilterState: {},
+      rangeFilterState: {}
     };
 
     this.classList.add('sidebar');
@@ -50,18 +56,29 @@ class Sidebar extends HTMLElement {
     this.update();
   }
 
-  createValueFilter(data: FilterData): void {
-    const filterElement = new ValueFilter(data);
+  createValueFilter(data: ValueFilterData): void {
+    const filterElement: ValueFilter = new ValueFilter(data);
+    const defaultFilterState: ValueStateData = filterElement.getDefaultStateData();
+    this.#filterState.valueFilterState[defaultFilterState.label] = defaultFilterState.state;
+    filterElement.addEventListener('FilterSelected', (e: Event) => this.valueFilterUpdated(e));
+    this.#valueFilterRef.push(filterElement);
     assertDefined(this.#valueFilterContainer).append(filterElement);
   }
 
   update(): void {
     if (this.#valueFilterContainer) this.#valueFilterContainer.innerHTML = "";
+    this.#valueFilterRef = [];
     this.#valueFilters?.forEach(filter => this.createValueFilter(filter));
   }
 
-  reset(): void {
+  valueFilterUpdated(e: Event): void {
+    const newFilterState: ValueStateData = (e as CustomEvent<ValueStateData>).detail;
+    this.#filterState.valueFilterState[newFilterState.label] = newFilterState.state;
+    console.log(this.#filterState);
+  }
 
+  reset(): void {
+    this.#valueFilterRef.forEach(filter => filter.reset());
   }
 }
 
