@@ -13,23 +13,19 @@
     transition: transform 0.3s;
 }
 
-.product-card:hover {
-    cursor: pointer;
-    transform: scale(1.1);
-}
-
 .product-card__button {
     width: 50px;
-    border: 1px solid #30c5ff;
+    border: 1px solid #17181c;
+    color: #17181c;
     border-radius: 5px;
-    background-color: lightgray;
-    transition: background-color 0.3s, color 0.3s;
+    background-color: transparent;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
 }
 
 .product-card__button:hover {
     cursor: pointer;
+    transform: scale(1.1);
     background-color: #30c5ff;
-    color: white;
 }
 
 .product-card__image {
@@ -76,6 +72,29 @@
 .product-card__stock {
     margin-right: auto;
 }
+
+.product-card__counter-container {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
+
+.product-card__counter-button {
+    background-color: transparent;
+    border: 1px solid #17181c;
+    border-radius: 5px;
+    padding: 5px;
+    color: #17181c;
+    transition: transform 0.3s, background-color 0.3s, color 0.3s;
+}
+
+.product-card__counter-button:hover {
+    cursor: pointer;
+    background-color: #30c5ff;
+    transform: scale(1.1);
+}
+
 
 /* How to correctly make selectors like this with BEM? */
 .hidden {

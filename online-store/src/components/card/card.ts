@@ -4,6 +4,7 @@ import './card.css';
 
 import { Product } from "../../controllers/dbController";
 import { assertDefined } from "../../controllers/dbController";
+import CartController from "../../controllers/cartController";
 
 
 
@@ -21,7 +22,11 @@ template.innerHTML = `
       <button class="product-card__button" data-target="cart">
         To cart
       </button>
-      <div class="product-card__counter hidden"> To cart </div> <!-- Change between text and amount if added to cart or not -->
+      <div class="product-card__counter-container hidden">
+        <button data-action="decrease" class="product-card__counter-button">-</button>
+        <div class="product-card__counter"> 0 </div>
+        <button data-action="increase" class="product-card__counter-button">+</button>
+      </div>
     </div>
 `;
 
@@ -38,15 +43,21 @@ class Card extends HTMLElement {
   #priceElement: HTMLElement | null = null
   #makerElement: HTMLHeadingElement | null = null
   #cartButtonElement: HTMLButtonElement | null = null
+  #counterIncreaseButton: HTMLButtonElement | null = null
+  #counterDecreaseButton: HTMLButtonElement | null = null
+  #counterContainer: HTMLDivElement | null = null
+
+  #cartControllerReference: CartController | null = null
 
   // tmp
   _shadowRoot: DocumentFragment | null = null
 
 
-  constructor(data: Product | null = null) {
+  constructor(data: Product | null = null, cart: CartController | null = null) {
     super();
 
     this.#innerData = data;
+    this.#cartControllerReference = cart;
 
     // Maybe use shadow dom when there is access to the internet (when it is clear
     // what to do with styles). For now just create document fragment and use it instead
@@ -59,11 +70,14 @@ class Card extends HTMLElement {
     this.#imageElement = this._shadowRoot.querySelector(".product-card__image");
     this.#infoElement = this._shadowRoot.querySelector(".product-card__info");
     this.#counterElement = this._shadowRoot.querySelector(".product-card__counter");
+    this.#counterContainer = this._shadowRoot.querySelector(".product-card__counter-container");
+    this.#counterDecreaseButton = this._shadowRoot.querySelector(".product-card__counter-button[data-action='decrease']");
+    this.#counterIncreaseButton = this._shadowRoot.querySelector(".product-card__counter-button[data-action='increase']");
     this.#stockCounterElement = this._shadowRoot.querySelector(".product-card__stock");
     this.#nameElement = this._shadowRoot.querySelector(".product-card__name");
     this.#priceElement = this._shadowRoot.querySelector(".product-card__price");
     this.#makerElement = this._shadowRoot.querySelector(".product-card__maker");
-    this.#cartButtonElement = this._shadowRoot.querySelector(".product-card__button [data-target='cart']");
+    this.#cartButtonElement = this._shadowRoot.querySelector(".product-card__button[data-target='cart']");
 
     this.append(this._shadowRoot);
     this.update();
@@ -86,11 +100,63 @@ class Card extends HTMLElement {
       `;
       assertDefined(this.#stockCounterElement).innerText = `In stock: ${data.stock}`;
       assertDefined(this.#counterElement).innerText = this.#cartCount.toString();
+      assertDefined(this.#cartButtonElement).addEventListener('click', () => this.emitAddToCart());
+      assertDefined(this.#counterDecreaseButton).addEventListener('click', () => this.emitRemoveFromCart());
+      assertDefined(this.#counterIncreaseButton).addEventListener('click', () => this.emitAddToCart());
     }
   }
 
-  connectedCallback(): void {
-    // Code to run on mount
+  updateCounter(): void {
+    assertDefined(this.#counterElement).innerText = this.#cartCount.toString();
+  }
+
+  emitAddToCart(): void {
+    if (this.#innerData) {
+      if (this.#cartCount === 0 && this.#cartControllerReference)
+        if (this.#cartControllerReference.cart.length >= 20) {
+          // What is a better way to do this? Without breaking responsibilities?
+          alert("Sorry, but there are no slots left in cart (only 20 unique items allowed)");
+          return;
+        }
+      if (this.#cartCount + 1 <= this.#innerData.stock)
+        this.#cartCount += 1;
+      else {
+        alert(`Cannot add item to cart: Only ${this.#innerData.stock} in stock!`);
+        return;
+      }
+      this.updateCounter();
+      if (this.#cartCount > 0) {
+        assertDefined(this.#counterContainer).classList.remove("hidden");
+        assertDefined(this.#cartButtonElement).classList.add("hidden");
+      }
+      const e: CustomEvent<Product> = new CustomEvent("addToCart",
+        {
+          bubbles: true,
+          cancelable: true,
+          detail: this.#innerData
+        });
+      this.dispatchEvent(e);
+    }
+    else throw new Error("Trying to add null product to cart");
+  }
+
+  emitRemoveFromCart(): void {
+    if (this.#innerData) {
+      if (this.#cartCount > 0) this.#cartCount -= 1;
+      this.updateCounter();
+      if (this.#cartCount <= 0) {
+        assertDefined(this.#counterContainer).classList.add("hidden");
+        assertDefined(this.#cartButtonElement).classList.remove("hidden");
+      }
+      const e: CustomEvent<Product> = new CustomEvent("removeFromCart",
+        {
+          bubbles: true,
+          cancelable: true,
+          detail: this.#innerData
+        });
+      this.dispatchEvent(e);
+    }
+    else throw new Error("Trying to remove null product from cart");
   }
 
   static get observedAttributes(): string[] {

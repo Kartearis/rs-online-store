@@ -4,10 +4,12 @@ import { Product } from "./dbController";
 import CatalogView from "../views/catalogView";
 import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from "../components/sidebar/sidebar";
 import { FilterData } from "../components/value-filter/value-filter";
+import CartController from "./cartController";
 
 export default class AppController {
 
   dbController: DbController = new DbController()
+  cartController: CartController = new CartController()
   catalogView: CatalogView = new CatalogView()
 
   async init(): Promise<void> {
@@ -63,6 +65,24 @@ export default class AppController {
       ? await this.dbController.getProductsByFilters(filters, sort)
       : await this.dbController.getProducts();
     console.log(sort);
-    this.catalogView.showProducts(data);
+    this.catalogView.showProducts(data, this);
+  }
+
+  productAddedToCart(e: Event): void {
+    try {
+      this.cartController.addProduct((e as CustomEvent<Product>).detail);
+    }
+    catch (e) {
+      alert(e);
+    }
+  }
+
+  productRemovedFromCart(e: Event): void {
+    try {
+      this.cartController.removeProduct((e as CustomEvent<Product>).detail);
+    }
+    catch (e) {
+      alert(e);
+    }
   }
 }
