@@ -81,6 +81,7 @@ class Card extends HTMLElement {
       assertDefined(this.#infoElement).innerHTML = `
         Memory: ${data.memory}<br>
         Color: ${data.color}<br>
+        Fans: ${data.fans}<br>
         Last restock: ${data.date.toLocaleDateString()}
       `;
       assertDefined(this.#stockCounterElement).innerText = `In stock: ${data.stock}`;

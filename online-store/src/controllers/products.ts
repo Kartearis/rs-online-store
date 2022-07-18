@@ -35,6 +35,7 @@ export default [
     "stock": 10,
     "color": "black",
     "memory": "8GB",
+    "fans": "3",
     "image": im3070
   },
   {
@@ -45,6 +46,7 @@ export default [
     "stock": 23,
     "color": "rgb",
     "memory": "8GB",
+    "fans": "3",
     "image": im3070palit
   },
   {
@@ -55,6 +57,7 @@ export default [
     "stock": 3,
     "color": "black",
     "memory": "8GB",
+    "fans": "2",
     "image": r6600
   },
   {
@@ -65,6 +68,7 @@ export default [
     "stock": 2,
     "color": "rgb",
     "memory": "12GB",
+    "fans": "3",
     "image": im3080palit
   },
   {
@@ -75,6 +79,7 @@ export default [
     "stock": 15,
     "color": "black",
     "memory": "12GB",
+    "fans": "2",
     "image": im2060palit
   },
   {
@@ -85,6 +90,7 @@ export default [
     "stock": 7,
     "color": "black",
     "memory": "12GB",
+    "fans": "2",
     "image": im3060palit
   },
   {
@@ -95,6 +101,7 @@ export default [
     "stock": 1,
     "color": "white",
     "memory": "12GB",
+    "fans": "3",
     "image": im3080gig
   },
   {
@@ -105,6 +112,7 @@ export default [
     "stock": 100,
     "color": "black",
     "memory": "4GB",
+    "fans": "1",
     "image": im1050palit
   },
   {
@@ -115,6 +123,7 @@ export default [
     "stock": 11,
     "color": "rgb",
     "memory": "6GB",
+    "fans": "2",
     "image": im1660msi
   },
   {
@@ -125,6 +134,7 @@ export default [
     "stock": 0,
     "color": "black",
     "memory": "8GB",
+    "fans": "2",
     "image": im3060msi
   },
   {
@@ -135,6 +145,7 @@ export default [
     "stock": 39,
     "color": "black",
     "memory": "6GB",
+    "fans": "2",
     "image": im1660kfa
   },
   {
@@ -145,6 +156,7 @@ export default [
     "stock": 3,
     "color": "white",
     "memory": "12GB",
+    "fans": "3",
     "image": im3080tigig
   },
   {
@@ -155,6 +167,7 @@ export default [
     "stock": 45,
     "color": "black",
     "memory": "4GB",
+    "fans": "1",
     "image": imr550msi
   },
   {
@@ -165,6 +178,7 @@ export default [
     "stock": 3,
     "color": "rgb",
     "memory": "16GB",
+    "fans": "3",
     "image": imr6900gig
   },
   {
@@ -175,6 +189,7 @@ export default [
     "stock": 56,
     "color": "metal",
     "memory": "12GB",
+    "fans": "2",
     "image": im2060kfa
   },
   {
@@ -185,6 +200,7 @@ export default [
     "stock": 14,
     "color": "metal",
     "memory": "6GB",
+    "fans": "2",
     "image": im1660supermsi
   },
   {
@@ -195,6 +211,7 @@ export default [
     "stock": 25,
     "color": "gray",
     "memory": "8GB",
+    "fans": "3",
     "image": imr6600msi
   },
   {
@@ -205,6 +222,7 @@ export default [
     "stock": 2,
     "color": "gray",
     "memory": "24GB",
+    "fans": "Turbo",
     "image": im3090gig
   },
   {
@@ -215,6 +233,7 @@ export default [
     "stock": 14,
     "color": "black",
     "memory": "16GB",
+    "fans": "3",
     "image": imr6900pc
   },
   {
@@ -225,6 +244,7 @@ export default [
     "stock": 158,
     "color": "black",
     "memory": "2GB",
+    "fans": "Passive",
     "image": im730asus
   },
   {
@@ -235,6 +255,7 @@ export default [
     "stock": 0,
     "color": "black",
     "memory": "12GB",
+    "fans": "1",
     "image": im3060asus
   },
   {
@@ -245,6 +266,7 @@ export default [
     "stock": 87,
     "color": "black",
     "memory": "1GB",
+    "fans": "1",
     "image": im210msi
   },
   {
@@ -255,6 +277,7 @@ export default [
     "stock": 3,
     "color": "black",
     "memory": "8GB",
+    "fans": "2",
     "image": imr6600asrock
   },
   {
@@ -265,6 +288,7 @@ export default [
     "stock": 5,
     "color": "white",
     "memory": "8GB",
+    "fans": "2",
     "image": im3060zotac
   },
   {
@@ -275,6 +299,7 @@ export default [
     "stock": 4,
     "color": "blue",
     "memory": "2GB",
+    "fans": "1",
     "image": im1030kfa
   },
 ]

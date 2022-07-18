@@ -21,7 +21,8 @@ interface ProductJson{
   color: string,
   stock: number,
   image: string,
-  date: string | Date
+  date: string | Date,
+  fans: string
 }
 
 export interface Product extends ProductJson{
@@ -35,13 +36,15 @@ interface ProductDB extends idb.DBSchema {
   products: {
     value: Product;
     key: string;
+    // Maybe indexes could be built with ts object building?
     indexes: {
       'price_idx': number,
       'vendor_idx': string,
       'color_idx': string,
       'date_idx': Date,
       'stock_idx': number,
-      'memory_idx': string
+      'memory_idx': string,
+      'fans_idx': string
     };
   };
 }
@@ -108,6 +111,10 @@ export default class DbController {
     ],
     [
       {type: MigrationType.indexAdded, field: 'price', indexName: 'price_idx'}
+    ],
+    [
+      {type: MigrationType.fieldAdded, field: 'fans', defaultValue: 'none'},
+      {type: MigrationType.indexAdded, field: 'fans', indexName: 'fans_idx'}
     ]
   ]
   defaultProducts: Product[] = products
@@ -188,4 +195,9 @@ export default class DbController {
       .getAll();
     return Array.from(new Set(objectsByField.map(product => product[field] as Type)));
   }
+
+  // async getProductsByFilters(): Promise<Product[]> {
+  //
+  //
+  // }
 }
