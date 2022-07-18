@@ -6,6 +6,8 @@
 import * as idb from 'idb';
 import { IDBPDatabase } from "idb";
 import products from './products';
+import { FilterState } from "../components/sidebar/sidebar";
+import {FilterState as ValueFilterState} from "../components/value-filter/value-filter";
 
 export function assertDefined<Type>(value: Type): NonNullable<Type> {
   if (value === undefined || value === null)
@@ -196,8 +198,20 @@ export default class DbController {
     return Array.from(new Set(objectsByField.map(product => product[field] as Type)));
   }
 
-  // async getProductsByFilters(): Promise<Product[]> {
-  //
-  //
-  // }
+  async getProductsByFilters(filters: FilterState): Promise<Product[]> {
+    // For large dbs using several indexes and merging resulting arrays may be faster?
+    // But I will go with simpler solution: getAll objects by sorting index then filter
+    // them with Array.filter
+    // For now assume sorting by name (later just use suitable index)
+    const tx: Transaction<'readonly'> = assertDefined(this.connection).transaction('products', 'readonly');
+    let allProducts: Product[] = await tx.objectStore('products').getAll();
+    // For each filter leave only suitable values
+    for (let state of Object.entries(filters.valueFilterState)) {
+      if (state[1].length === 0) continue;
+      allProducts = allProducts.filter(product => state[1].includes(product[state[0]].toString()));
+    }
+    // Here filter with range filters
+    ////////
+    return allProducts;
+  }
 }

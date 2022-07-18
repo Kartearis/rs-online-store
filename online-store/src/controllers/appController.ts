@@ -2,7 +2,7 @@
 import DbController from "./dbController";
 import { Product } from "./dbController";
 import CatalogView from "../views/catalogView";
-import { FilterConfig } from "../components/sidebar/sidebar";
+import Sidebar, { FilterConfig, FilterState } from "../components/sidebar/sidebar";
 import { FilterData } from "../components/value-filter/value-filter";
 
 export default class AppController {
@@ -12,6 +12,15 @@ export default class AppController {
 
   async init(): Promise<void> {
     await this.dbController.init()
+    const filterConfig: FilterConfig = {
+      valueFilters: await Promise.all(
+        ['Vendor', 'Color', 'Memory', 'Fans']
+          .map(field => this.buildValueFilterFromField(field))),
+      rangeFilters: []
+    };
+    const sidebar: Sidebar = this.catalogView.createSidebar(filterConfig);
+    sidebar.addEventListener('filterUpdate', (e) => this.showProducts((e as CustomEvent<FilterState>).detail));
+    console.log(sidebar);
   }
 
   async buildValueFilterFromField(field: string): Promise<FilterData> {
@@ -24,14 +33,11 @@ export default class AppController {
     }
   };
 
-  async showProducts() {
-    const data: Product[] | undefined = await this.dbController.getProducts();
-    const filterConfig: FilterConfig = {
-      valueFilters: await Promise.all(
-        ['Vendor', 'Color', 'Memory', 'Fans']
-          .map(field => this.buildValueFilterFromField(field))),
-      rangeFilters: []
-    }
-    this.catalogView.showProducts(data, filterConfig);
+  async showProducts(filters: FilterState | null): Promise<void> {
+    console.log(filters);
+    const data: Product[] | undefined = filters
+      ? await this.dbController.getProductsByFilters(filters)
+      : await this.dbController.getProducts();
+    this.catalogView.showProducts(data);
   }
 }

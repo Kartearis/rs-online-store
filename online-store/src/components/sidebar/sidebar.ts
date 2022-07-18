@@ -1,7 +1,12 @@
 // Sidebar web-component
 // Must support filter, order and reset events
 import './sidebar.css';
-import ValueFilter, { FilterData as ValueFilterData, StateData as ValueStateData, FilterState as ValueFilterState } from "../value-filter/value-filter";
+import ValueFilter, {
+  FilterData as ValueFilterData,
+  StateData as ValueStateData,
+  FilterState as ValueFilterState,
+  StateData
+} from "../value-filter/value-filter";
 import { assertDefined } from "../../controllers/dbController";
 
 
@@ -74,10 +79,30 @@ class Sidebar extends HTMLElement {
   valueFilterUpdated(e: Event): void {
     const newFilterState: ValueStateData = (e as CustomEvent<ValueStateData>).detail;
     this.#filterState.valueFilterState[newFilterState.label] = newFilterState.state;
-    console.log(this.#filterState);
+    this.emitFilterUpdate();
+  }
+
+  emitFilterUpdate(): void {
+    const e: CustomEvent<FilterState> = new CustomEvent("filterUpdate",
+      {
+        cancelable: true,
+        detail: this.#filterState
+      });
+    this.dispatchEvent(e);
+  }
+
+  emitSortUpdate(): void {
+    const e: CustomEvent<unknown> = new CustomEvent("SortUpdate",
+      {
+        cancelable: true,
+        detail: {}
+      });
+    this.dispatchEvent(e);
   }
 
   reset(): void {
+    // This will lead to a lot of queries to base (1 per each filter).
+    // TODO: Fix multiple updates (disable emitting and add return value to reset?)
     this.#valueFilterRef.forEach(filter => filter.reset());
   }
 }

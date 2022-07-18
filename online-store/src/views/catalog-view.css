@@ -7,3 +7,13 @@
     align-items: stretch;
     justify-items: center;
 }
+
+.card-container__alert {
+    border: 1px solid #30c5ff;
+    border-radius: 5px;
+    padding: 5px;
+    text-align: center;
+    grid-column: 1 / span 3;
+    align-self: center;
+    justify-self: stretch;
+}
