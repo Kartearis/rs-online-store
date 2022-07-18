@@ -25,10 +25,8 @@ interface ProductJson{
 }
 
 export interface Product extends ProductJson{
-  name: string,
-  price: number,
   date: Date,
-  // [x: string]: unknown // Use indexer to set fields with migrations
+  [x: string]: Product[keyof Product] // Use indexer to make fields accessible by string
 }
 
 
@@ -37,7 +35,14 @@ interface ProductDB extends idb.DBSchema {
   products: {
     value: Product;
     key: string;
-    indexes: { 'price_idx': number };
+    indexes: {
+      'price_idx': number,
+      'vendor_idx': string,
+      'color_idx': string,
+      'date_idx': Date,
+      'stock_idx': number,
+      'memory_idx': string
+    };
   };
 }
 
@@ -47,10 +52,14 @@ enum MigrationType {
   indexAdded,
   indexRemoved,
 }
+// Utility type to remove index signature from type
+type RemoveIndex<T> = {
+  [ K in keyof T as string extends K ? never : number extends K ? never : K ] : T[K]
+};
 
 interface BaseMigration {
   type: MigrationType,
-  field: string
+  field: keyof RemoveIndex<Product>
 }
 
 interface FieldAddedMigration extends BaseMigration {
@@ -58,7 +67,7 @@ interface FieldAddedMigration extends BaseMigration {
 }
 
 interface IndexMigration extends BaseMigration {
-  indexName: string
+  indexName: keyof ProductDB['products']['indexes']
 }
 
 type Transaction<Mode extends "versionchange" | "readonly" | "readwrite"> = idb.IDBPTransaction<ProductDB, ["products"], Mode>
@@ -77,8 +86,7 @@ export default class DbController {
     [
       {type: MigrationType.fieldAdded, field: 'name', defaultValue: 'default'},
       {type: MigrationType.fieldAdded, field: 'price', defaultValue: 0},
-      {type: MigrationType.fieldAdded, field: 'date', defaultValue: new Date()},
-      {type: MigrationType.indexAdded, field: 'price', indexName: 'price_idx'}
+      {type: MigrationType.fieldAdded, field: 'date', defaultValue: new Date()}
     ],
     [
       {type: MigrationType.fieldAdded, field: 'vendor', defaultValue: 'default'},
@@ -88,6 +96,18 @@ export default class DbController {
     ],
     [
       {type: MigrationType.fieldAdded, field: 'image', defaultValue: '../assets/images/placeholder.png'},
+    ],
+    // Empty migrations to compensate for versioning bug-fixes
+    [],[],[],[],[],[],
+    [
+      {type: MigrationType.indexAdded, field: 'vendor', indexName: 'vendor_idx'},
+      {type: MigrationType.indexAdded, field: 'date', indexName: 'date_idx'},
+      {type: MigrationType.indexAdded, field: 'memory', indexName: 'memory_idx'},
+      {type: MigrationType.indexAdded, field: 'color', indexName: 'color_idx'},
+      {type: MigrationType.indexAdded, field: 'stock', indexName: 'stock_idx'},
+    ],
+    [
+      {type: MigrationType.indexAdded, field: 'price', indexName: 'price_idx'}
     ]
   ]
   defaultProducts: Product[] = products
@@ -129,8 +149,7 @@ export default class DbController {
         break;
       case MigrationType.indexAdded:
         const indexMigration = migration as IndexMigration;
-        // @ts-ignore Supress indexMigration.field not known at compile time to be === 'price_idx'.
-        store.createIndex(indexMigration.field, indexMigration.indexName);
+        store.createIndex(indexMigration.indexName, indexMigration.field);
         break;
       case MigrationType.indexRemoved:
         const indexRemovedMigration = migration as IndexMigration;
@@ -141,17 +160,17 @@ export default class DbController {
   async openDb(name: string): Promise<void> {
     const self: DbController = this;
     this.connection = await idb.openDB<ProductDB>(name, this.version, {
-      async upgrade(db, oldVersion: number, newVersion: number | null) {
+      async upgrade(db: IDBPDatabase<ProductDB>, oldVersion: number, newVersion: number | null, tx) {
         if (newVersion) {
           let productStore: productStore | undefined = undefined;
           if (!db.objectStoreNames.contains('products'))
             productStore = db.createObjectStore('products', {keyPath: self.storageKey});
           else {
-            const tx: Transaction<"versionchange"> = db.transaction(['products'], 'versionchange');
             productStore = tx.store;
           }
-          const requiredMigrations: migrationArray = self.migrationHistory.slice(oldVersion, newVersion - 1);
+          const requiredMigrations: migrationArray = self.migrationHistory.slice(oldVersion, newVersion);
           await Promise.all(requiredMigrations.flat(2).map(migration => self.applyMigration(db, assertDefined(productStore), migration)));
+          await tx.done;
         }
       }
     });
@@ -160,5 +179,13 @@ export default class DbController {
   async getProducts(/* filters and sort here later */): Promise<Product[] | undefined> {
     // const tx = this.connection?.transaction(['products'], 'readonly');
     return this.connection?.getAll('products');
+  }
+
+  async getUniqueFieldValues<Type extends (string | number | Date)>(field: keyof Product): Promise<Type[]> {
+    const tx: Transaction<'readonly'> = assertDefined(this.connection).transaction('products', 'readonly');
+    const objectsByField: Product[] = await tx.objectStore("products")
+      .index((field + "_idx") as keyof ProductDB['products']['indexes'])
+      .getAll();
+    return Array.from(new Set(objectsByField.map(product => product[field] as Type)));
   }
 }
