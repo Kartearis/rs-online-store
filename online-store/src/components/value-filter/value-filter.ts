@@ -75,11 +75,12 @@ class ValueFilter extends HTMLElement {
         }
     }
 
-    reset(): void {
+    reset(emitEvent: boolean = true): void {
         assertDefined(this.#optionContainer)
             .querySelectorAll('.value-filter__option:checked')
             .forEach((element) => ((element as HTMLInputElement).checked = false));
-        this.emitEvent([]);
+        if (emitEvent)
+            this.emitEvent([]);
     }
 
     optionSelected(): void {

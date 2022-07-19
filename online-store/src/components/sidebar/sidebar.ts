@@ -152,10 +152,17 @@ class Sidebar extends HTMLElement {
 
 
 
-    reset(): void {
+    reset(emitEvent: boolean = true): void {
         // This will lead to a lot of queries to base (1 per each filter).
         // TODO: Fix multiple updates (disable emitting and add return value to reset?)
-        this.#valueFilterRef.forEach((filter) => filter.reset());
+        this.#valueFilterRef.forEach((filter) => {
+            filter.reset(false);
+            const stateData: ValueStateData = filter.getCurrentStateData();
+            this.#filterState.valueFilterState[stateData.label] = stateData.state;
+        });
+        console.log(this.#filterState);
+        if (emitEvent)
+            this.emitFilterUpdate();
     }
 
     get currentFilterState(): FilterState {
