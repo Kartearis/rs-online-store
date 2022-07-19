@@ -92,7 +92,7 @@ class Card extends HTMLElement {
             assertDefined(this.#priceElement).innerText = data.price.toString();
             assertDefined(this.#makerElement).innerText = data.vendor;
             assertDefined(this.#infoElement).innerHTML = `
-        Memory: ${data.memory}<br>
+        Memory: ${data.memory}GB<br>
         Color: ${data.color}<br>
         Fans: ${data.fans}<br>
         Last restock: ${data.date.toLocaleDateString()}

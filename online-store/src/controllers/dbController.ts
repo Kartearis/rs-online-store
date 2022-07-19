@@ -17,7 +17,7 @@ interface ProductJson {
     name: string;
     price: number;
     vendor: string;
-    memory: string;
+    memory: number;
     color: string;
     stock: number;
     image: string;
@@ -41,7 +41,7 @@ interface ProductDB extends idb.DBSchema {
             color_idx: string;
             date_idx: Date;
             stock_idx: number;
-            memory_idx: string;
+            memory_idx: number;
             fans_idx: string;
         };
     };
@@ -132,6 +132,10 @@ export default class DbController {
             { type: MigrationType.fieldAdded, field: 'fans', defaultValue: 'none' },
             { type: MigrationType.indexAdded, field: 'fans', indexName: 'fans_idx' },
         ],
+        [
+            { type: MigrationType.indexRemoved, field: 'memory', indexName: 'memory_idx' },
+            { type: MigrationType.indexAdded, field: 'memory', indexName: 'memory_idx' },
+        ]
     ];
     defaultProducts: Product[] = products;
 
