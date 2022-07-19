@@ -48,4 +48,9 @@ export default class UserDataController {
     return item ? JSON.parse(item) : null;
   }
 
+  clearData(): void {
+    // On rsschool gh-pages may clear data from other students
+    this.#storage.clear();
+  }
+
 }

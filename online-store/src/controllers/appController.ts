@@ -63,6 +63,14 @@ export default class AppController {
         searchBar.addEventListener('search', (e: Event) =>
             this.showProducts(sidebar.currentFilterState, sidebar.currentSortState, (e as CustomEvent<string>).detail)
         );
+        sidebar.addEventListener('hardReset', () => {
+            this.cartController.cart = [];
+            searchBar.currentSearchTerm = "";
+            sidebar.reset();
+            sidebar.resetSort();
+            this.showProducts(null, null, null);
+            this.userDataController.clearData();
+        });
 
         this.loadUserData(sidebar, searchBar);
         console.log(this.cartController.cart);
@@ -81,6 +89,7 @@ export default class AppController {
     }
 
     saveUserData(filters: FilterState | null, sort: SortState | null, searchTerm: string | null): void {
+        console.log("saved");
         this.userDataController.saveCart(this.cartController.cart);
         if (filters) this.userDataController.saveFilters(filters);
         if (sort) this.userDataController.saveSort(sort);

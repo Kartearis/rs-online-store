@@ -30,10 +30,11 @@ template.innerHTML = `
   <h3 class="sidebar__header">Filters</h3>
   <div class="sidebar__value-filter-container"></div>
   <div class="sidebar__range-filter-container"></div>
-  <button class="sidebar__reset">Reset</button>
+  <button class="sidebar__reset" data-mode="soft">Reset</button>
   <h3 class="sidebar__header">Sort</h3>
   <select class="sidebar__sort">
   </select>
+  <button class="sidebar__reset sidebar__reset--hard" data-mode="hard">Clear LocalStorage</button>
 `;
 
 class Sidebar extends HTMLElement {
@@ -47,6 +48,7 @@ class Sidebar extends HTMLElement {
 
     _shadowRoot: DocumentFragment | null = null;
     #resetButton: HTMLButtonElement | null = null;
+    #hardResetButton: HTMLButtonElement | null = null;
     #valueFilterContainer: HTMLElement | null = null;
     #sortElement: HTMLSelectElement | null = null;
 
@@ -68,10 +70,12 @@ class Sidebar extends HTMLElement {
         this._shadowRoot = document.createDocumentFragment();
         this._shadowRoot.append(template.content.cloneNode(true));
         this.#valueFilterContainer = this._shadowRoot.querySelector('.sidebar__value-filter-container');
-        this.#resetButton = this._shadowRoot.querySelector('.sidebar__reset');
+        this.#resetButton = this._shadowRoot.querySelector('.sidebar__reset[data-mode="soft"]');
+        this.#hardResetButton = this._shadowRoot.querySelector('.sidebar__reset[data-mode="hard"]');
         this.#sortElement = this._shadowRoot.querySelector('.sidebar__sort');
 
         this.#resetButton?.addEventListener('click', () => this.reset());
+        this.#hardResetButton?.addEventListener('click', () => this.emitHardReset());
 
         this.append(this._shadowRoot);
         this.update();
@@ -139,6 +143,15 @@ class Sidebar extends HTMLElement {
         this.dispatchEvent(e);
     }
 
+    emitHardReset(): void {
+        const e: CustomEvent<void> = new CustomEvent('hardReset', {
+            cancelable: true,
+        });
+        this.dispatchEvent(e);
+    }
+
+
+
     reset(): void {
         // This will lead to a lot of queries to base (1 per each filter).
         // TODO: Fix multiple updates (disable emitting and add return value to reset?)
@@ -163,6 +176,15 @@ class Sidebar extends HTMLElement {
 
     set currentSortState(sort: SortState) {
         this.#sortState = sort;
+        assertDefined(this.#sortElement).value = this.#sortState.field + '#' + this.#sortState.direction;
+    }
+
+    resetSort(): void {
+        this.#sortState = {
+            field: 'name',
+            direction: 'up',
+        };
+        if (this.#sortConfig.length > 0) this.#sortState.field = this.#sortConfig[0].field;
         assertDefined(this.#sortElement).value = this.#sortState.field + '#' + this.#sortState.direction;
     }
 }
