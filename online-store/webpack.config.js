@@ -9,8 +9,12 @@ const baseConfig = {
     module: {
         rules: [
             {
-                test: /\.css$/i,
+                test: /(?<!\.local)\.css$/i,
                 use: ['style-loader', 'css-loader'],
+            },
+            {
+                test: /\.local\.css$/i,
+                use: ['css-loader'],
             },
             {
                 test: /\.tsx?$/,

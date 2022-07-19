@@ -5,6 +5,7 @@ import CatalogView from '../views/catalogView';
 import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from '../components/sidebar/sidebar';
 import { FilterData } from '../components/value-filter/value-filter';
 import CartController from './cartController';
+import SearchBar from "../components/search-input/search-input";
 
 export default class AppController {
     dbController: DbController = new DbController();
@@ -48,6 +49,7 @@ export default class AppController {
         sidebar.addEventListener('sortUpdate', (e) =>
             this.showProducts(sidebar.currentFilterState, (e as CustomEvent<SortState>).detail)
         );
+        const searchBar: SearchBar = this.catalogView.createSearchBar();
     }
 
     async buildValueFilterFromField(field: string): Promise<FilterData> {

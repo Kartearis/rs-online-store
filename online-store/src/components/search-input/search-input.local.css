@@ -1,0 +1,20 @@
+.search-input__input {
+    border: 1px solid #30c5ff;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #17181c;
+    color: #30c5ff;
+    min-width: 300px;
+    font-size: 1.1rem;
+}
+.search-input__input::-webkit-search-cancel-button:hover {
+    cursor: pointer;
+    color: #30c5ff;
+}
+.search-input__input:hover {
+    transform: scale(1.05);
+}
+
+.search-input__input:focus {
+    outline: none;
+}

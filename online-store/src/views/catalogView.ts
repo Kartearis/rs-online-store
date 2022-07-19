@@ -6,14 +6,22 @@ import { assertDefined } from '../controllers/dbController';
 
 import './catalog-view.css';
 import AppController from '../controllers/appController';
+import SearchBar from "../components/search-input/search-input";
 
 export default class CatalogView {
     sidebar: Sidebar | null = null;
+    searchBar: SearchBar | null = null
 
     createSidebar(sidebarConfig: FilterConfig, sortConfig: SortConfig): Sidebar {
         this.sidebar = new Sidebar(sidebarConfig, sortConfig);
         assertDefined(document.querySelector('main .sidebar-container')).append(this.sidebar);
         return this.sidebar;
+    }
+
+    createSearchBar(): SearchBar {
+        this.searchBar = new SearchBar();
+        assertDefined(document.querySelector('header .search-bar-container')).append(this.searchBar);
+        return this.searchBar;
     }
 
     showAlert(alert: string): void {

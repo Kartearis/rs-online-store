@@ -19,6 +19,11 @@ body {
 }
 
 header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 30px;
 }
 
@@ -45,14 +50,6 @@ header h1 {
         position: relative;
         overflow-x: hidden;
         flex: auto;
-    }
-
-    header {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        align-items: center;
     }
 
     .burger-container {
@@ -160,4 +157,8 @@ footer .copyright:before {
     grid-template-columns: 25% 1fr;
     grid-template-rows: 1fr;
     gap: 10px;
+}
+
+.search-bar-container {
+
 }
