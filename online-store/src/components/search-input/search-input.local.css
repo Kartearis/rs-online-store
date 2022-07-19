@@ -4,7 +4,7 @@
     padding: 5px;
     background-color: #17181c;
     color: #30c5ff;
-    min-width: 300px;
+    min-width: min(300px, 80%);
     font-size: 1.1rem;
 }
 .search-input__input::-webkit-search-cancel-button:hover {

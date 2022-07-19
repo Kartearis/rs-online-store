@@ -8,6 +8,18 @@
     justify-items: center;
 }
 
+@media (max-width: 1230px) {
+    .card-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .card-container {
+        grid-template-columns: 1fr;
+    }
+}
+
 .card-container__alert {
     border: 1px solid #30c5ff;
     border-radius: 5px;
