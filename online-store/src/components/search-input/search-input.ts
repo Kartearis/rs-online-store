@@ -45,6 +45,10 @@ class SearchBar extends HTMLElement {
     get currentSearchTerm(): string {
         return this.#inputElement.value;
     }
+
+    set currentSearchTerm(term: string) {
+        this.#inputElement.value = term;
+    }
 }
 
 export default SearchBar;

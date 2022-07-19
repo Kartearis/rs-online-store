@@ -4,13 +4,15 @@ import { Product } from './dbController';
 import CatalogView from '../views/catalogView';
 import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from '../components/sidebar/sidebar';
 import { FilterData } from '../components/value-filter/value-filter';
-import CartController from './cartController';
+import CartController, { ProductInCart } from "./cartController";
 import SearchBar from '../components/search-input/search-input';
+import UserDataController from "./userDataController";
 
 export default class AppController {
     dbController: DbController = new DbController();
     cartController: CartController = new CartController();
     catalogView: CatalogView = new CatalogView();
+    userDataController: UserDataController = new UserDataController("online-store");
 
     async init(): Promise<void> {
         await this.dbController.init();
@@ -61,6 +63,28 @@ export default class AppController {
         searchBar.addEventListener('search', (e: Event) =>
             this.showProducts(sidebar.currentFilterState, sidebar.currentSortState, (e as CustomEvent<string>).detail)
         );
+
+        this.loadUserData(sidebar, searchBar);
+        console.log(this.cartController.cart);
+        await this.showProducts(sidebar.currentFilterState, sidebar.currentSortState, searchBar.currentSearchTerm);
+    }
+
+    loadUserData(sidebar: Sidebar, searchBar: SearchBar): void {
+        const term: string | null = this.userDataController.loadSearchTerm();
+        if (term) searchBar.currentSearchTerm = term;
+        const filters: FilterState | null = this.userDataController.loadFilters();
+        if (filters) sidebar.currentFilterState = filters;
+        const sort: SortState | null = this.userDataController.loadSort();
+        if (sort) sidebar.currentSortState = sort;
+        const cart: ProductInCart[] | null = this.userDataController.loadCart();
+        if (cart) this.cartController.cart = cart;
+    }
+
+    saveUserData(filters: FilterState | null, sort: SortState | null, searchTerm: string | null): void {
+        this.userDataController.saveCart(this.cartController.cart);
+        if (filters) this.userDataController.saveFilters(filters);
+        if (sort) this.userDataController.saveSort(sort);
+        if (searchTerm !== null) this.userDataController.saveSearchTerm(searchTerm);
     }
 
     async buildValueFilterFromField(field: string): Promise<FilterData> {
@@ -85,11 +109,13 @@ export default class AppController {
                 ? await this.dbController.getProductsByFilters(filters, sort, searchTerm)
                 : await this.dbController.getProducts();
         this.catalogView.showProducts(data, this);
+        this.saveUserData(filters, sort, searchTerm);
     }
 
     productAddedToCart(e: Event): void {
         try {
             this.cartController.addProduct((e as CustomEvent<Product>).detail);
+            this.userDataController.saveCart(this.cartController.cart);
         } catch (e) {
             alert(e);
         }
@@ -98,6 +124,7 @@ export default class AppController {
     productRemovedFromCart(e: Event): void {
         try {
             this.cartController.removeProduct((e as CustomEvent<Product>).detail);
+            this.userDataController.saveCart(this.cartController.cart);
         } catch (e) {
             alert(e);
         }

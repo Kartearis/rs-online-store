@@ -45,6 +45,7 @@ class Card extends HTMLElement {
     #counterContainer: HTMLDivElement | null = null;
 
     #cartControllerReference: CartController | null = null;
+    #listenersSet: boolean = false
 
     // tmp
     _shadowRoot: DocumentFragment | null = null;
@@ -99,9 +100,13 @@ class Card extends HTMLElement {
       `;
             assertDefined(this.#stockCounterElement).innerText = `In stock: ${data.stock}`;
             assertDefined(this.#counterElement).innerText = this.#cartCount.toString();
-            assertDefined(this.#cartButtonElement).addEventListener('click', () => this.emitAddToCart());
-            assertDefined(this.#counterDecreaseButton).addEventListener('click', () => this.emitRemoveFromCart());
-            assertDefined(this.#counterIncreaseButton).addEventListener('click', () => this.emitAddToCart());
+            if (!this.#listenersSet) {
+                assertDefined(this.#cartButtonElement).addEventListener('click', () => this.emitAddToCart());
+                assertDefined(this.#counterDecreaseButton).addEventListener('click', () => this.emitRemoveFromCart());
+                assertDefined(this.#counterIncreaseButton).addEventListener('click', () => this.emitAddToCart());
+                this.#listenersSet = true;
+            }
+
         }
     }
 
@@ -173,7 +178,15 @@ class Card extends HTMLElement {
 
     set cartCount(count: number) {
         this.#cartCount = count;
-        this.update();
+        this.updateCounter();
+        if (this.#cartCount <= 0) {
+            assertDefined(this.#counterContainer).classList.add('hidden');
+            assertDefined(this.#cartButtonElement).classList.remove('hidden');
+        }
+        else if (this.#cartCount > 0) {
+            assertDefined(this.#counterContainer).classList.remove('hidden');
+            assertDefined(this.#cartButtonElement).classList.add('hidden');
+        }
     }
 }
 

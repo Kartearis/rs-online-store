@@ -4,7 +4,7 @@
 
 import { Product } from './dbController';
 
-type ProductInCart = { product: Product; amount: number };
+export type ProductInCart = { product: Product; amount: number };
 
 // Inherit Element to gain access to event dispatching. Is there a better way? This seems hacky
 export default class CartController {
@@ -47,5 +47,15 @@ export default class CartController {
 
     get cart(): ProductInCart[] {
         return this.#productsInCart;
+    }
+
+    set cart(products: ProductInCart[]) {
+        this.#productsInCart = products;
+    }
+
+    getAmountOfProduct(productName: string): number {
+        const related: ProductInCart[] = this.#productsInCart.filter(entry => entry.product.name === productName);
+        if (related.length > 0) return related[0].amount;
+        return 0;
     }
 }

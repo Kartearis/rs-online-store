@@ -123,6 +123,13 @@ class ValueFilter extends HTMLElement {
         };
     }
 
+    setCurrentStateData(data: FilterState): void {
+        const options: NodeListOf<Element> = assertDefined(this.#optionContainer).querySelectorAll(".value-filter__option");
+        options.forEach(element => (element as HTMLInputElement).checked = false);
+        Array.from(options).filter(element => data.includes((element as HTMLInputElement).dataset['value']))
+          .forEach(element => (element as HTMLInputElement).checked = true);
+    }
+
     get label(): string | undefined {
         return this.#innerData?.label;
     }

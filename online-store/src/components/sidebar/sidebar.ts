@@ -149,8 +149,21 @@ class Sidebar extends HTMLElement {
         return this.#filterState;
     }
 
+    set currentFilterState(filters: FilterState) {
+        this.#filterState = filters;
+        this.#valueFilterRef.forEach(filter => {
+            if (filter.label)
+                filter.setCurrentStateData(filters.valueFilterState[filter.label.toLowerCase()]);
+        });
+    }
+
     get currentSortState(): SortState {
         return this.#sortState;
+    }
+
+    set currentSortState(sort: SortState) {
+        this.#sortState = sort;
+        assertDefined(this.#sortElement).value = this.#sortState.field + '#' + this.#sortState.direction;
     }
 }
 

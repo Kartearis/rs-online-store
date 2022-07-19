@@ -7,6 +7,7 @@ import { assertDefined } from '../controllers/dbController';
 import './catalog-view.css';
 import AppController from '../controllers/appController';
 import SearchBar from '../components/search-input/search-input';
+import { ProductInCart } from "../controllers/cartController";
 
 export default class CatalogView {
     sidebar: Sidebar | null = null;
@@ -40,6 +41,7 @@ export default class CatalogView {
         const fragment: DocumentFragment = document.createDocumentFragment();
         data.forEach((value) => {
             const card: Card = new Card(value, appController.cartController);
+            card.cartCount = appController.cartController.getAmountOfProduct(value.name);
             fragment.append(card);
         });
         const container: HTMLElement = assertDefined(document.querySelector('main .card-container'));
