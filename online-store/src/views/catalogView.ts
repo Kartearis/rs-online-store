@@ -6,11 +6,11 @@ import { assertDefined } from '../controllers/dbController';
 
 import './catalog-view.css';
 import AppController from '../controllers/appController';
-import SearchBar from "../components/search-input/search-input";
+import SearchBar from '../components/search-input/search-input';
 
 export default class CatalogView {
     sidebar: Sidebar | null = null;
-    searchBar: SearchBar | null = null
+    searchBar: SearchBar | null = null;
 
     createSidebar(sidebarConfig: FilterConfig, sortConfig: SortConfig): Sidebar {
         this.sidebar = new Sidebar(sidebarConfig, sortConfig);

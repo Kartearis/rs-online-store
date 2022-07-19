@@ -5,7 +5,7 @@ import CatalogView from '../views/catalogView';
 import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from '../components/sidebar/sidebar';
 import { FilterData } from '../components/value-filter/value-filter';
 import CartController from './cartController';
-import SearchBar from "../components/search-input/search-input";
+import SearchBar from '../components/search-input/search-input';
 
 export default class AppController {
     dbController: DbController = new DbController();
@@ -44,14 +44,23 @@ export default class AppController {
         ];
         const sidebar: Sidebar = this.catalogView.createSidebar(filterConfig, sortConfig);
         sidebar.addEventListener('filterUpdate', (e) =>
-            this.showProducts((e as CustomEvent<FilterState>).detail, sidebar.currentSortState, searchBar.currentSearchTerm)
+            this.showProducts(
+                (e as CustomEvent<FilterState>).detail,
+                sidebar.currentSortState,
+                searchBar.currentSearchTerm
+            )
         );
         sidebar.addEventListener('sortUpdate', (e) =>
-            this.showProducts(sidebar.currentFilterState, (e as CustomEvent<SortState>).detail, searchBar.currentSearchTerm)
+            this.showProducts(
+                sidebar.currentFilterState,
+                (e as CustomEvent<SortState>).detail,
+                searchBar.currentSearchTerm
+            )
         );
         const searchBar: SearchBar = this.catalogView.createSearchBar();
         searchBar.addEventListener('search', (e: Event) =>
-            this.showProducts(sidebar.currentFilterState, sidebar.currentSortState, (e as CustomEvent<string>).detail));
+            this.showProducts(sidebar.currentFilterState, sidebar.currentSortState, (e as CustomEvent<string>).detail)
+        );
     }
 
     async buildValueFilterFromField(field: string): Promise<FilterData> {
@@ -66,9 +75,11 @@ export default class AppController {
         };
     }
 
-    async showProducts(filters: FilterState | null = null,
-                       sort: SortState | null = null,
-                       searchTerm: string | null = null): Promise<void> {
+    async showProducts(
+        filters: FilterState | null = null,
+        sort: SortState | null = null,
+        searchTerm: string | null = null
+    ): Promise<void> {
         const data: Product[] | undefined =
             filters || sort || searchTerm
                 ? await this.dbController.getProductsByFilters(filters, sort, searchTerm)

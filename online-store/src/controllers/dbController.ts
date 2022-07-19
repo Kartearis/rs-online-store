@@ -135,7 +135,7 @@ export default class DbController {
         [
             { type: MigrationType.indexRemoved, field: 'memory', indexName: 'memory_idx' },
             { type: MigrationType.indexAdded, field: 'memory', indexName: 'memory_idx' },
-        ]
+        ],
     ];
     defaultProducts: Product[] = products;
 
@@ -182,21 +182,20 @@ export default class DbController {
     }
 
     async openDb(name: string): Promise<void> {
-        const self: DbController = this;
         this.connection = await idb.openDB<ProductDB>(name, this.version, {
-            async upgrade(db: IDBPDatabase<ProductDB>, oldVersion: number, newVersion: number | null, tx) {
+            upgrade: async (db: IDBPDatabase<ProductDB>, oldVersion: number, newVersion: number | null, tx) => {
                 if (newVersion) {
                     let productStore: productStore | undefined = undefined;
                     if (!db.objectStoreNames.contains('products'))
-                        productStore = db.createObjectStore('products', { keyPath: self.storageKey });
+                        productStore = db.createObjectStore('products', { keyPath: this.storageKey });
                     else {
                         productStore = tx.store;
                     }
-                    const requiredMigrations: migrationArray = self.migrationHistory.slice(oldVersion, newVersion);
+                    const requiredMigrations: migrationArray = this.migrationHistory.slice(oldVersion, newVersion);
                     await Promise.all(
                         requiredMigrations
                             .flat(2)
-                            .map((migration) => self.applyMigration(db, assertDefined(productStore), migration))
+                            .map((migration) => this.applyMigration(db, assertDefined(productStore), migration))
                     );
                     await tx.done;
                 }
@@ -218,9 +217,11 @@ export default class DbController {
         return Array.from(new Set(objectsByField.map((product) => product[field] as Type)));
     }
 
-    async getProductsByFilters(filters: FilterState | null,
-                               sort: SortState | null,
-                               searchTerm: string | null): Promise<Product[]> {
+    async getProductsByFilters(
+        filters: FilterState | null,
+        sort: SortState | null,
+        searchTerm: string | null
+    ): Promise<Product[]> {
         // For large dbs using several indexes and merging resulting arrays may be faster?
         // But I will go with simpler solution: getAll objects by sorting index then filter
         // them with Array.filter
@@ -241,7 +242,9 @@ export default class DbController {
                 allProducts = allProducts.filter((product) => state[1].includes(product[state[0]].toString()));
             }
         if (searchTerm && searchTerm.length > 0)
-            allProducts = allProducts.filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
+            allProducts = allProducts.filter((product) =>
+                product.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
         // Here filter with range filters
         ////////
         return direction === 'up' ? allProducts : allProducts.reverse();
