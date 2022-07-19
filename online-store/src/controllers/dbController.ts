@@ -214,7 +214,9 @@ export default class DbController {
         return Array.from(new Set(objectsByField.map((product) => product[field] as Type)));
     }
 
-    async getProductsByFilters(filters: FilterState | null, sort: SortState | null): Promise<Product[]> {
+    async getProductsByFilters(filters: FilterState | null,
+                               sort: SortState | null,
+                               searchTerm: string | null): Promise<Product[]> {
         // For large dbs using several indexes and merging resulting arrays may be faster?
         // But I will go with simpler solution: getAll objects by sorting index then filter
         // them with Array.filter
@@ -234,6 +236,8 @@ export default class DbController {
                 if (state[1].length === 0) continue;
                 allProducts = allProducts.filter((product) => state[1].includes(product[state[0]].toString()));
             }
+        if (searchTerm && searchTerm.length > 0)
+            allProducts = allProducts.filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
         // Here filter with range filters
         ////////
         return direction === 'up' ? allProducts : allProducts.reverse();

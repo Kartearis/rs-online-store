@@ -44,12 +44,14 @@ export default class AppController {
         ];
         const sidebar: Sidebar = this.catalogView.createSidebar(filterConfig, sortConfig);
         sidebar.addEventListener('filterUpdate', (e) =>
-            this.showProducts((e as CustomEvent<FilterState>).detail, sidebar.currentSortState)
+            this.showProducts((e as CustomEvent<FilterState>).detail, sidebar.currentSortState, searchBar.currentSearchTerm)
         );
         sidebar.addEventListener('sortUpdate', (e) =>
-            this.showProducts(sidebar.currentFilterState, (e as CustomEvent<SortState>).detail)
+            this.showProducts(sidebar.currentFilterState, (e as CustomEvent<SortState>).detail, searchBar.currentSearchTerm)
         );
         const searchBar: SearchBar = this.catalogView.createSearchBar();
+        searchBar.addEventListener('search', (e: Event) =>
+            this.showProducts(sidebar.currentFilterState, sidebar.currentSortState, (e as CustomEvent<string>).detail));
     }
 
     async buildValueFilterFromField(field: string): Promise<FilterData> {
@@ -64,13 +66,13 @@ export default class AppController {
         };
     }
 
-    async showProducts(filters: FilterState | null, sort: SortState | null): Promise<void> {
-        console.log(filters);
+    async showProducts(filters: FilterState | null = null,
+                       sort: SortState | null = null,
+                       searchTerm: string | null = null): Promise<void> {
         const data: Product[] | undefined =
-            filters || sort
-                ? await this.dbController.getProductsByFilters(filters, sort)
+            filters || sort || searchTerm
+                ? await this.dbController.getProductsByFilters(filters, sort, searchTerm)
                 : await this.dbController.getProducts();
-        console.log(sort);
         this.catalogView.showProducts(data, this);
     }
 
