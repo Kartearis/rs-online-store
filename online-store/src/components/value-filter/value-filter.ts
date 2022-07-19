@@ -75,12 +75,11 @@ class ValueFilter extends HTMLElement {
         }
     }
 
-    reset(emitEvent: boolean = true): void {
+    reset(emitEvent = true): void {
         assertDefined(this.#optionContainer)
             .querySelectorAll('.value-filter__option:checked')
             .forEach((element) => ((element as HTMLInputElement).checked = false));
-        if (emitEvent)
-            this.emitEvent([]);
+        if (emitEvent) this.emitEvent([]);
     }
 
     optionSelected(): void {
@@ -125,10 +124,13 @@ class ValueFilter extends HTMLElement {
     }
 
     setCurrentStateData(data: FilterState): void {
-        const options: NodeListOf<Element> = assertDefined(this.#optionContainer).querySelectorAll(".value-filter__option");
-        options.forEach(element => (element as HTMLInputElement).checked = false);
-        Array.from(options).filter(element => data.includes((element as HTMLInputElement).dataset['value']))
-          .forEach(element => (element as HTMLInputElement).checked = true);
+        const options: NodeListOf<Element> = assertDefined(this.#optionContainer).querySelectorAll(
+            '.value-filter__option'
+        );
+        options.forEach((element) => ((element as HTMLInputElement).checked = false));
+        Array.from(options)
+            .filter((element) => data.includes((element as HTMLInputElement).dataset['value']))
+            .forEach((element) => ((element as HTMLInputElement).checked = true));
     }
 
     get label(): string | undefined {

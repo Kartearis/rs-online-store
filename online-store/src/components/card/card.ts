@@ -45,7 +45,7 @@ class Card extends HTMLElement {
     #counterContainer: HTMLDivElement | null = null;
 
     #cartControllerReference: CartController | null = null;
-    #listenersSet: boolean = false
+    #listenersSet = false;
 
     // tmp
     _shadowRoot: DocumentFragment | null = null;
@@ -106,7 +106,6 @@ class Card extends HTMLElement {
                 assertDefined(this.#counterIncreaseButton).addEventListener('click', () => this.emitAddToCart());
                 this.#listenersSet = true;
             }
-
         }
     }
 
@@ -182,8 +181,7 @@ class Card extends HTMLElement {
         if (this.#cartCount <= 0) {
             assertDefined(this.#counterContainer).classList.add('hidden');
             assertDefined(this.#cartButtonElement).classList.remove('hidden');
-        }
-        else if (this.#cartCount > 0) {
+        } else if (this.#cartCount > 0) {
             assertDefined(this.#counterContainer).classList.remove('hidden');
             assertDefined(this.#cartButtonElement).classList.add('hidden');
         }

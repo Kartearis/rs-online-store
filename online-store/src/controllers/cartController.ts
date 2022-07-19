@@ -54,7 +54,7 @@ export default class CartController {
     }
 
     getAmountOfProduct(productName: string): number {
-        const related: ProductInCart[] = this.#productsInCart.filter(entry => entry.product.name === productName);
+        const related: ProductInCart[] = this.#productsInCart.filter((entry) => entry.product.name === productName);
         if (related.length > 0) return related[0].amount;
         return 0;
     }

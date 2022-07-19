@@ -4,15 +4,15 @@ import { Product } from './dbController';
 import CatalogView from '../views/catalogView';
 import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from '../components/sidebar/sidebar';
 import { FilterData } from '../components/value-filter/value-filter';
-import CartController, { ProductInCart } from "./cartController";
+import CartController, { ProductInCart } from './cartController';
 import SearchBar from '../components/search-input/search-input';
-import UserDataController from "./userDataController";
+import UserDataController from './userDataController';
 
 export default class AppController {
     dbController: DbController = new DbController();
     cartController: CartController = new CartController();
     catalogView: CatalogView = new CatalogView();
-    userDataController: UserDataController = new UserDataController("online-store");
+    userDataController: UserDataController = new UserDataController('online-store');
 
     async init(): Promise<void> {
         await this.dbController.init();
@@ -65,7 +65,7 @@ export default class AppController {
         );
         sidebar.addEventListener('hardReset', () => {
             this.cartController.cart = [];
-            searchBar.currentSearchTerm = "";
+            searchBar.currentSearchTerm = '';
             sidebar.reset(false);
             sidebar.resetSort();
             this.showProducts(null, null, null);

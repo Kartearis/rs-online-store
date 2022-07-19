@@ -150,9 +150,7 @@ class Sidebar extends HTMLElement {
         this.dispatchEvent(e);
     }
 
-
-
-    reset(emitEvent: boolean = true): void {
+    reset(emitEvent = true): void {
         // This will lead to a lot of queries to base (1 per each filter).
         // TODO: Fix multiple updates (disable emitting and add return value to reset?)
         this.#valueFilterRef.forEach((filter) => {
@@ -161,8 +159,7 @@ class Sidebar extends HTMLElement {
             this.#filterState.valueFilterState[stateData.label] = stateData.state;
         });
         console.log(this.#filterState);
-        if (emitEvent)
-            this.emitFilterUpdate();
+        if (emitEvent) this.emitFilterUpdate();
     }
 
     get currentFilterState(): FilterState {
@@ -171,9 +168,8 @@ class Sidebar extends HTMLElement {
 
     set currentFilterState(filters: FilterState) {
         this.#filterState = filters;
-        this.#valueFilterRef.forEach(filter => {
-            if (filter.label)
-                filter.setCurrentStateData(filters.valueFilterState[filter.label.toLowerCase()]);
+        this.#valueFilterRef.forEach((filter) => {
+            if (filter.label) filter.setCurrentStateData(filters.valueFilterState[filter.label.toLowerCase()]);
         });
     }
 

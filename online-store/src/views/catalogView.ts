@@ -7,7 +7,6 @@ import { assertDefined } from '../controllers/dbController';
 import './catalog-view.css';
 import AppController from '../controllers/appController';
 import SearchBar from '../components/search-input/search-input';
-import { ProductInCart } from "../controllers/cartController";
 
 export default class CatalogView {
     sidebar: Sidebar | null = null;
