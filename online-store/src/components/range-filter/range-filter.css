@@ -1,0 +1,96 @@
+.range-filter {
+    display: grid;
+    grid-template-rows: minmax(min-content, max-content) 1fr;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 0;
+}
+
+.range-filter__label {
+    font-weight: bolder;
+    font-size: 1.1em;
+}
+
+.range-filter__reset {
+    background-color: transparent;
+    border: none;
+    font-size: 1.1em;
+    color: #fff;
+    transition: color 0.3s, transform 0.3s;
+    justify-self: end;
+}
+
+.range-filter__reset:hover {
+    transform: scale(1.2);
+    color: #30c5ff;
+    cursor: pointer;
+}
+
+.range-filter__container {
+    margin: 0 15px;
+    grid-column: 1 / span 2;
+    /* 30px offset for pips */
+    margin-bottom: 30px;
+}
+
+.noUi-target {
+    border: 1px solid #30c5ff;
+    background-color: #17181c;
+    border-radius: 5px;
+    box-shadow: none;
+}
+
+.noUi-handle {
+    border-radius: 50%;
+    border: 1px solid #30c5ff;
+    background-color: #17181c;
+    box-shadow: none;
+    transition: background-color 0.3s, border 0.3s;
+}
+
+.noUi-handle:hover {
+    cursor: pointer;
+    background-color: #30c5ff;
+    border-color: #17181c;
+}
+
+.noUi-horizontal .noUi-handle {
+    width: 30px;
+    height: 30px;
+    right: -15px;
+    top: -7px;
+}
+
+.noUi-handle::before {
+    content: none;
+}
+
+.noUi-handle::after {
+    content: none;
+}
+
+.noUi-connect {
+    background-color: #28c3fd;
+}
+
+.noUi-value.noUi-value-horizontal.noUi-value-large{
+    padding-top: 5px;
+}
+
+.noUi-pips {
+    opacity: 0.6;
+}
+
+.noUi-value{
+    font-size: 0.8rem;
+    color: #30c5ff;
+}
+
+.noUi-marker {
+    background-color: #30c5ff;
+}
+
+.noUi-marker.noUi-marker-large {
+    height: 10px;
+}

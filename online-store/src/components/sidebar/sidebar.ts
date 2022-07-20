@@ -7,10 +7,15 @@ import ValueFilter, {
     FilterState as ValueFilterState,
 } from '../value-filter/value-filter';
 import { assertDefined, Product } from '../../controllers/dbController';
+import RangeFilter, {
+    FilterData as RangeFilterData,
+    StateData as RangeStateData,
+    FilterState as RangeFilterState,
+} from "../range-filter/range-filter";
 
 export interface FilterConfig {
     valueFilters: ValueFilterData[];
-    rangeFilters: unknown[]; // tmp
+    rangeFilters: RangeFilterData[];
 }
 
 export type SortConfig = { field: keyof Product; label: string }[];
@@ -22,7 +27,7 @@ export interface SortState {
 
 export interface FilterState {
     valueFilterState: Record<string, ValueFilterState>;
-    rangeFilterState: unknown;
+    rangeFilterState: Record<string, RangeFilterState>;
 }
 
 const template: HTMLTemplateElement = document.createElement('template');
@@ -40,6 +45,8 @@ template.innerHTML = `
 class Sidebar extends HTMLElement {
     #valueFilters: ValueFilterData[] | null = null;
     #valueFilterRef: ValueFilter[] = [];
+    #rangeFilters: RangeFilterData[] | null = null
+    #rangeFilterRef: RangeFilter[] = []
 
     #sortConfig: SortConfig = [];
 
@@ -50,11 +57,13 @@ class Sidebar extends HTMLElement {
     #resetButton: HTMLButtonElement | null = null;
     #hardResetButton: HTMLButtonElement | null = null;
     #valueFilterContainer: HTMLElement | null = null;
+    #rangeFilterContainer: HTMLElement | null = null
     #sortElement: HTMLSelectElement | null = null;
 
     constructor(filterConfig: FilterConfig, sortConfig: SortConfig) {
         super();
         this.#valueFilters = filterConfig.valueFilters;
+        this.#rangeFilters = filterConfig.rangeFilters;
         this.#sortConfig = sortConfig;
         this.#sortState = {
             field: 'name',
@@ -70,6 +79,7 @@ class Sidebar extends HTMLElement {
         this._shadowRoot = document.createDocumentFragment();
         this._shadowRoot.append(template.content.cloneNode(true));
         this.#valueFilterContainer = this._shadowRoot.querySelector('.sidebar__value-filter-container');
+        this.#rangeFilterContainer = this._shadowRoot.querySelector('.sidebar__range-filter-container');
         this.#resetButton = this._shadowRoot.querySelector('.sidebar__reset[data-mode="soft"]');
         this.#hardResetButton = this._shadowRoot.querySelector('.sidebar__reset[data-mode="hard"]');
         this.#sortElement = this._shadowRoot.querySelector('.sidebar__sort');
@@ -90,10 +100,22 @@ class Sidebar extends HTMLElement {
         assertDefined(this.#valueFilterContainer).append(filterElement);
     }
 
+    // TODO: Remake as generic? But how exactly?
+    createRangeFilter(data: RangeFilterData): void {
+        const filterElement: RangeFilter = new RangeFilter(data);
+        const defaultFilterState: RangeStateData = filterElement.getDefaultStateData();
+        this.#filterState.rangeFilterState[defaultFilterState.label] = defaultFilterState.state;
+        filterElement.addEventListener('FilterSelected', (e: Event) => this.rangeFilterUpdated(e));
+        this.#rangeFilterRef.push(filterElement);
+        assertDefined(this.#rangeFilterContainer).append(filterElement);
+    }
+
     update(): void {
         if (this.#valueFilterContainer) this.#valueFilterContainer.innerHTML = '';
         this.#valueFilterRef = [];
         this.#valueFilters?.forEach((filter) => this.createValueFilter(filter));
+        this.#rangeFilterRef = [];
+        this.#rangeFilters?.forEach((filter) => this.createRangeFilter(filter));
         this.setupSort();
     }
 
@@ -121,6 +143,12 @@ class Sidebar extends HTMLElement {
     valueFilterUpdated(e: Event): void {
         const newFilterState: ValueStateData = (e as CustomEvent<ValueStateData>).detail;
         this.#filterState.valueFilterState[newFilterState.label] = newFilterState.state;
+        this.emitFilterUpdate();
+    }
+
+    rangeFilterUpdated(e: Event): void {
+        const newFilterState: RangeStateData = (e as CustomEvent<RangeStateData>).detail;
+        this.#filterState.rangeFilterState[newFilterState.label] = newFilterState.state;
         this.emitFilterUpdate();
     }
 

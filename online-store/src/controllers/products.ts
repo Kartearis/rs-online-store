@@ -35,7 +35,7 @@ export default [
         color: 'black',
         memory: 8,
         fans: '3',
-        image: im3070,
+        image: require("../assets/images/products/3070.jpg.webp").default
     },
     {
         name: 'Palit GeForce RTX 3070 Ti GamingPro',

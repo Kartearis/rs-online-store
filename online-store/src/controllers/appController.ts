@@ -3,7 +3,8 @@ import DbController from './dbController';
 import { Product } from './dbController';
 import CatalogView from '../views/catalogView';
 import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from '../components/sidebar/sidebar';
-import { FilterData } from '../components/value-filter/value-filter';
+import { FilterData as ValueFilterData } from '../components/value-filter/value-filter';
+import { FilterData as RangeFilterData } from '../components/range-filter/range-filter';
 import CartController, { ProductInCart } from './cartController';
 import SearchBar from '../components/search-input/search-input';
 import UserDataController from './userDataController';
@@ -20,7 +21,9 @@ export default class AppController {
             valueFilters: await Promise.all(
                 ['Vendor', 'Color', 'Memory', 'Fans'].map((field) => this.buildValueFilterFromField(field))
             ),
-            rangeFilters: [],
+            rangeFilters: await Promise.all(
+              ['Stock', 'Price'].map((field) => this.buildRangeFilterFromField(field))
+            ),
         };
         const sortConfig: SortConfig = [
             {
@@ -93,7 +96,7 @@ export default class AppController {
         if (searchTerm !== null) this.userDataController.saveSearchTerm(searchTerm);
     }
 
-    async buildValueFilterFromField(field: string): Promise<FilterData> {
+    async buildValueFilterFromField(field: string): Promise<ValueFilterData> {
         return {
             label: field,
             options: (await this.dbController.getUniqueFieldValues<string>(field.toLowerCase())).map((value) => {
@@ -102,6 +105,15 @@ export default class AppController {
                     value: value,
                 };
             }),
+        };
+    }
+
+    async buildRangeFilterFromField(field: string): Promise<RangeFilterData> {
+        const boundaries: {min: number, max: number} = await this.dbController.getBoundariesForField(field.toLowerCase());
+        return {
+            label: field,
+            min: boundaries.min,
+            max: boundaries.max
         };
     }
 

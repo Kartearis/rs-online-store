@@ -39,6 +39,7 @@
         "webpack-merge": "^5.7.3"
     },
     "dependencies": {
-        "idb": "^7.0.2"
+        "idb": "^7.0.2",
+        "nouislider": "^15.6.0"
     }
 }
