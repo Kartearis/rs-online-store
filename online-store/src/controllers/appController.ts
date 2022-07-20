@@ -21,9 +21,7 @@ export default class AppController {
             valueFilters: await Promise.all(
                 ['Vendor', 'Color', 'Memory', 'Fans'].map((field) => this.buildValueFilterFromField(field))
             ),
-            rangeFilters: await Promise.all(
-              ['Stock', 'Price'].map((field) => this.buildRangeFilterFromField(field))
-            ),
+            rangeFilters: await Promise.all(['Stock', 'Price'].map((field) => this.buildRangeFilterFromField(field))),
         };
         const sortConfig: SortConfig = [
             {
@@ -109,11 +107,13 @@ export default class AppController {
     }
 
     async buildRangeFilterFromField(field: string): Promise<RangeFilterData> {
-        const boundaries: {min: number, max: number} = await this.dbController.getBoundariesForField(field.toLowerCase());
+        const boundaries: { min: number; max: number } = await this.dbController.getBoundariesForField(
+            field.toLowerCase()
+        );
         return {
             label: field,
             min: boundaries.min,
-            max: boundaries.max
+            max: boundaries.max,
         };
     }
 

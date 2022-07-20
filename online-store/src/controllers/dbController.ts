@@ -217,17 +217,22 @@ export default class DbController {
         return Array.from(new Set(objectsByField.map((product) => product[field] as Type)));
     }
 
-    async getBoundariesForField<Type extends string | number | Date>(field: keyof Product): Promise<{min: Type, max: Type}> {
+    async getBoundariesForField<Type extends string | number | Date>(
+        field: keyof Product
+    ): Promise<{ min: Type; max: Type }> {
         const tx: Transaction<'readonly'> = assertDefined(this.connection).transaction('products', 'readonly');
         // Use simple way - get all objects and receive value of first and last.
         // It would be more effective to use cursor and get only first and last elements
         const objectsByField: Product[] = await tx
-          .objectStore('products')
-          .index((field + '_idx') as keyof ProductDB['products']['indexes'])
-          .getAll();
+            .objectStore('products')
+            .index((field + '_idx') as keyof ProductDB['products']['indexes'])
+            .getAll();
         if (objectsByField.length > 0)
-            return {min: objectsByField[0][field] as Type, max: objectsByField[objectsByField.length - 1][field] as Type};
-        else throw new Error("Could not get field boundaries: no data");
+            return {
+                min: objectsByField[0][field] as Type,
+                max: objectsByField[objectsByField.length - 1][field] as Type,
+            };
+        else throw new Error('Could not get field boundaries: no data');
     }
 
     async getProductsByFilters(
@@ -255,8 +260,9 @@ export default class DbController {
                 allProducts = allProducts.filter((product) => state[1].includes(product[state[0]].toString()));
             }
             for (const state of Object.entries(filters.rangeFilterState)) {
-                allProducts = allProducts.filter((product) =>
-                  state[1].min <= product[state[0]] && product[state[0]] <= state[1].max);
+                allProducts = allProducts.filter(
+                    (product) => state[1].min <= product[state[0]] && product[state[0]] <= state[1].max
+                );
             }
         }
         if (searchTerm && searchTerm.length > 0)

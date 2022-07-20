@@ -11,7 +11,7 @@ import RangeFilter, {
     FilterData as RangeFilterData,
     StateData as RangeStateData,
     FilterState as RangeFilterState,
-} from "../range-filter/range-filter";
+} from '../range-filter/range-filter';
 
 export interface FilterConfig {
     valueFilters: ValueFilterData[];
@@ -45,8 +45,8 @@ template.innerHTML = `
 class Sidebar extends HTMLElement {
     #valueFilters: ValueFilterData[] | null = null;
     #valueFilterRef: ValueFilter[] = [];
-    #rangeFilters: RangeFilterData[] | null = null
-    #rangeFilterRef: RangeFilter[] = []
+    #rangeFilters: RangeFilterData[] | null = null;
+    #rangeFilterRef: RangeFilter[] = [];
 
     #sortConfig: SortConfig = [];
 
@@ -57,7 +57,7 @@ class Sidebar extends HTMLElement {
     #resetButton: HTMLButtonElement | null = null;
     #hardResetButton: HTMLButtonElement | null = null;
     #valueFilterContainer: HTMLElement | null = null;
-    #rangeFilterContainer: HTMLElement | null = null
+    #rangeFilterContainer: HTMLElement | null = null;
     #sortElement: HTMLSelectElement | null = null;
 
     constructor(filterConfig: FilterConfig, sortConfig: SortConfig) {
