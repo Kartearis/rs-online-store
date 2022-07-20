@@ -112,6 +112,7 @@ class Sidebar extends HTMLElement {
 
     update(): void {
         if (this.#valueFilterContainer) this.#valueFilterContainer.innerHTML = '';
+        if (this.#rangeFilterContainer) this.#rangeFilterContainer.innerHTML = '';
         this.#valueFilterRef = [];
         this.#valueFilters?.forEach((filter) => this.createValueFilter(filter));
         this.#rangeFilterRef = [];
@@ -179,14 +180,16 @@ class Sidebar extends HTMLElement {
     }
 
     reset(emitEvent = true): void {
-        // This will lead to a lot of queries to base (1 per each filter).
-        // TODO: Fix multiple updates (disable emitting and add return value to reset?)
         this.#valueFilterRef.forEach((filter) => {
             filter.reset(false);
             const stateData: ValueStateData = filter.getCurrentStateData();
             this.#filterState.valueFilterState[stateData.label] = stateData.state;
         });
-        console.log(this.#filterState);
+        this.#rangeFilterRef.forEach((filter) => {
+            filter.reset(false);
+            const stateData: RangeStateData = filter.getCurrentStateData();
+            this.#filterState.rangeFilterState[stateData.label] = stateData.state;
+        });
         if (emitEvent) this.emitFilterUpdate();
     }
 
@@ -198,6 +201,9 @@ class Sidebar extends HTMLElement {
         this.#filterState = filters;
         this.#valueFilterRef.forEach((filter) => {
             if (filter.label) filter.setCurrentStateData(filters.valueFilterState[filter.label.toLowerCase()]);
+        });
+        this.#rangeFilterRef.forEach((filter) => {
+            if (filter.label) filter.setCurrentStateData(filters.rangeFilterState[filter.label.toLowerCase()]);
         });
     }
 

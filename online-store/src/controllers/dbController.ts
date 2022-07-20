@@ -249,11 +249,16 @@ export default class DbController {
                 allProducts = await tx.objectStore('products').index(indexName).getAll();
             else allProducts = await tx.objectStore('products').getAll();
         } else allProducts = await tx.objectStore('products').getAll();
-        if (filters)
+        if (filters) {
             for (const state of Object.entries(filters.valueFilterState)) {
                 if (state[1].length === 0) continue;
                 allProducts = allProducts.filter((product) => state[1].includes(product[state[0]].toString()));
             }
+            for (const state of Object.entries(filters.rangeFilterState)) {
+                allProducts = allProducts.filter((product) =>
+                  state[1].min <= product[state[0]] && product[state[0]] <= state[1].max);
+            }
+        }
         if (searchTerm && searchTerm.length > 0)
             allProducts = allProducts.filter((product) =>
                 product.name.toLowerCase().includes(searchTerm.toLowerCase())

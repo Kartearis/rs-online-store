@@ -61,7 +61,7 @@ export default class RangeFilter extends HTMLElement {
 
   getDefaultStateData(): StateData {
     return {
-      label: this.#config.label,
+      label: this.#config.label.toLowerCase(),
       state: {
         min: this.#config.min,
         max: this.#config.max
@@ -72,7 +72,7 @@ export default class RangeFilter extends HTMLElement {
   getCurrentStateData(): StateData {
     const values: number[] = this.#slider.get(true) as number[]; // Cast, as unencoded get is definetely number[]
     return {
-      label: this.#config.label,
+      label: this.#config.label.toLowerCase(),
       state: {
         min: values[0],
         max: values[1]
@@ -98,6 +98,14 @@ export default class RangeFilter extends HTMLElement {
       },
     });
     this.dispatchEvent(e);
+  }
+
+  get label(): string {
+    return this.#config.label;
+  }
+
+  set label(data: string) {
+    if (data) this.#config.label = data;
   }
 }
 
