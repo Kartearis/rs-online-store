@@ -41,6 +41,15 @@ export default class RangeFilter extends HTMLElement {
         this.#slider = noUiSlider.create(this.#container, {
             start: [this.#config.min, this.#config.max],
             connect: true,
+            step: 1,
+            tooltips: {
+                to: function (value: number): string {
+                    return Math.round(value) + '';
+                },
+                from: function (value: string): number {
+                    return parseInt(value);
+                },
+            },
             pips: {
                 mode: PipsMode.Count,
                 values: 3,
