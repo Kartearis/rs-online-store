@@ -1,5 +1,5 @@
 // Main app controller. Connects different parts of app together
-import DbController from './dbController';
+import DbController, { assertDefined } from "./dbController";
 import { Product } from './dbController';
 import CatalogView from '../views/catalogView';
 import Sidebar, { FilterConfig, FilterState, SortConfig, SortState } from '../components/sidebar/sidebar';
@@ -11,7 +11,7 @@ import UserDataController from './userDataController';
 
 export default class AppController {
     dbController: DbController = new DbController();
-    cartController: CartController = new CartController();
+    cartController: CartController = new CartController(assertDefined(document.querySelector(".cart-counter")));
     catalogView: CatalogView = new CatalogView();
     userDataController: UserDataController = new UserDataController('online-store');
 
