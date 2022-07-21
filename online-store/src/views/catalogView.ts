@@ -11,6 +11,14 @@ import SearchBar from '../components/search-input/search-input';
 export default class CatalogView {
     sidebar: Sidebar | null = null;
     searchBar: SearchBar | null = null;
+    #cardContainer: HTMLElement
+
+    constructor(appController: AppController) {
+        // Registering events should be in separate function, called with first cart creation.
+        this.#cardContainer = assertDefined(document.querySelector('main .card-container'));
+        this.#cardContainer.addEventListener('addToCart', (e: Event) => appController.productAddedToCart(e));
+        this.#cardContainer.addEventListener('removeFromCart', (e: Event) => appController.productRemovedFromCart(e));
+    }
 
     createSidebar(sidebarConfig: FilterConfig, sortConfig: SortConfig): Sidebar {
         this.sidebar = new Sidebar(sidebarConfig, sortConfig);
@@ -43,10 +51,7 @@ export default class CatalogView {
             card.cartCount = appController.cartController.getAmountOfProduct(value.name);
             fragment.append(card);
         });
-        const container: HTMLElement = assertDefined(document.querySelector('main .card-container'));
-        container.innerHTML = '';
-        container.append(fragment);
-        container.addEventListener('addToCart', (e: Event) => appController.productAddedToCart(e));
-        container.addEventListener('removeFromCart', (e: Event) => appController.productRemovedFromCart(e));
+        this.#cardContainer.innerHTML = '';
+        this.#cardContainer.append(fragment);
     }
 }

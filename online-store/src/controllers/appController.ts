@@ -12,7 +12,7 @@ import UserDataController from './userDataController';
 export default class AppController {
     dbController: DbController = new DbController();
     cartController: CartController = new CartController(assertDefined(document.querySelector(".cart-counter")));
-    catalogView: CatalogView = new CatalogView();
+    catalogView: CatalogView = new CatalogView(this);
     userDataController: UserDataController = new UserDataController('online-store');
 
     async init(): Promise<void> {
@@ -64,12 +64,12 @@ export default class AppController {
         searchBar.addEventListener('search', (e: Event) =>
             this.showProducts(sidebar.currentFilterState, sidebar.currentSortState, (e as CustomEvent<string>).detail)
         );
-        sidebar.addEventListener('hardReset', () => {
+        sidebar.addEventListener('hardReset', async () => {
             this.cartController.cart = [];
             searchBar.currentSearchTerm = '';
             sidebar.reset(false);
             sidebar.resetSort();
-            this.showProducts(null, null, null);
+            await this.showProducts(null, null, null);
             this.userDataController.clearData();
         });
 
