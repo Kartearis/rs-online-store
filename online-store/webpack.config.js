@@ -39,7 +39,7 @@ const baseConfig = {
     },
     output: {
         filename: 'index.js',
-        path: path.resolve(__dirname, '../online-store-dist'),
+        path: path.resolve(__dirname, './dist'),
         hashFunction: 'xxhash64',
     },
     plugins: [
